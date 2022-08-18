@@ -1,0 +1,13 @@
+namespace: finallycoffee
+name: base
+version: 0.0.1
+readme: README.md
+authors:
+- Johanna Dorothea Reichmann <transcaffeine@finally.coffee>
+description: Roles for bootstrapping tools like gpg, ssh and git
+license:
+- CNPLv7+
+build_ignore:
+- '*.tar.gz'
+repository: https://git.finally.coffee/finallycoffee/base
+issues: https://git.finally.coffee/finallycoffee/base/issues
