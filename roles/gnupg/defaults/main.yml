@@ -1,0 +1,26 @@
+---
+
+gpg_config_folder: ~/.gnupg
+gpg_config_file: "{{ gpg_config_folder }}/gpg.conf"
+gpg_agent_config_file: "{{ gpg_config_folder }}/gpg-agent.conf"
+gpg_agent_sshcontrol_file: "{{ gpg_config_folder }}/sshcontrol"
+gpg_configure_agent_script: "{{ gpg_config_folder }}/gpg-configure-as-ssh-agent.sh"
+
+gpg_keygrips_for_ssh: []
+
+gpg_config_cert_digest_algo: SHA256
+gpg_config_emit_version: false
+gpg_config_comments: false
+gpg_config_ignore_time_conflict: false
+gpg_config_allow_freeform_uid: true
+gpg_config_keyid_format: 0xlong
+gpg_config_with_fingerprint: true
+
+gpg_config_keyserver: hkps://keys.openpgp.org
+gpg_config_keyserver_options: []
+
+gpg_agent_config_cache_ttl: 300
+gpg_agent_config_cache_ttl_ssh: 300
+gpg_agent_config_enable_ssh_support: false
+gpg_agent_config_ignore_cache_for_signing: true
+gpg_agent_config_allow_external_cache: false

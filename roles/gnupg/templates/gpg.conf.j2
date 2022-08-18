@@ -1,0 +1,29 @@
+{% if not gpg_config_emit_version %}
+no-emit-version
+{% endif %}
+{% if not gpg_config_comments %}
+no-comments
+{% endif %}
+cert-digest-algo {{ gpg_config_cert_digest_algo }}
+personal-cipher-preferences AES AES256 AES192 CAST5
+personal-digest-preferences SHA256 SHA512 SHA384 SHA224
+{% if gpg_config_ignore_time_conflict %}
+ignore-time-conflict
+{% endif %}
+
+# How to render keys
+keyid-format {{ gpg_config_keyid_format }}
+{% if gpg_config_with_fingerprint %}
+with-fingerprint
+{% endif %}
+{% if gpg_config_allow_freeform_uid %}
+allow-freeform-uid
+{% endif %}
+
+# Keyserver settings
+{% if gpg_config_keyserver %}
+keyserver {{ gpg_config_keyserver }}
+{% endif %}
+{% if gpg_config_keyserver_options %}
+keyserver-options {{ gpg_config_keyserver_options | join(' ') }}
+{% endif%}

@@ -1,0 +1,53 @@
+---
+
+- name: Ensure gnupg is installed (RedHat*)
+  package:
+    name: gnupg2
+    state: latest
+  become: true
+  when: ansible_os_family == "RedHat"
+
+- name: Ensure gnupg is installed (Arch)
+  package:
+    name: gnupg
+    state: latest
+  become: true
+  when: ansible_os_family == "Archlinux"
+
+- name: Ensure ~/.gnupg folder exists with correct permissions
+  file:
+    path: "{{ gpg_config_folder }}"
+    state: directory
+    mode: 0700
+
+- name: Ensure gpg.conf is templated
+  template:
+    src: gpg.conf.j2
+    dest: "{{ gpg_config_file }}"
+
+- name: Configure gpg-agent.conf (agent configuration)
+  template:
+    src: gpg-agent.conf.j2
+    dest: "{{ gpg_agent_config_file }}"
+
+# attempt to bootstrap the supplied keys here, so the keygrip can be retrieved
+
+- name: Configure sshcontrol (in order for gpg-agent to act as ssh-agent)
+  template:
+    src: sshcontrol.j2
+    dest: "{{ gpg_agent_sshcontrol_file }}"
+  when: gpg_agent_config_enable_ssh_support
+
+- name: Copy gnupg_agent script, which makes gpg-agent responsible for ssh-auth
+  copy:
+    src: gpg-configure-ssh-auth-socket.sh
+    dest: "{{ gpg_configure_agent_script }}"
+    mode: 0700
+  when: gpg_agent_config_enable_ssh_support
+
+- name: Ensure gnupg_agent script is included in bashrc
+  lineinfile:
+    path: "~/.bashrc"
+    line: "source {{ gpg_configure_agent_script }}"
+    state: present
+  when: gpg_agent_config_enable_ssh_support

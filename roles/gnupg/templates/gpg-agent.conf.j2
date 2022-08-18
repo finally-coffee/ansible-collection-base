@@ -1,0 +1,13 @@
+default-cache-ttl {{ gpg_agent_config_cache_ttl }}
+default-cache-ttl-ssh {{ gpg_agent_config_cache_ttl_ssh }}
+max-cache-ttl {{ gpg_agent_config_cache_ttl }}
+max-cache-ttl-ssh {{ gpg_agent_config_cache_ttl_ssh }}
+{% if not gpg_agent_config_allow_external_cache %}
+no-allow-external-cache
+{% endif %}
+{% if gpg_agent_config_enable_ssh_support %}
+enable-ssh-support
+{% endif %}
+{% if gpg_agent_config_ignore_cache_for_signing %}
+ignore-cache-for-signing
+{% endif %}
