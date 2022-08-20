@@ -1,0 +1,45 @@
+---
+
+- name: Ensure git configuration is persisted in git configs file
+  blockinfile:
+    dest: "{{ git_config_file }}"
+    mode: "0660"
+    create: yes
+    state: present
+    marker: "#{mark} ANSIBLE MANAGED BLOCK by finallycoffee.base.git"
+    block: |+2
+      {% if git_config_user_name|default(false, true) and git_config_user_email|default(false, true) %}
+      [user]
+        name = {{ git_config_user_name }}
+        email = {{ git_config_user_email }}
+      {% if git_config_user_signingkey %}
+        signingkey = {{ git_config_user_signingkey }}
+      {% endif %}
+      {% endif %}
+      [gpg]
+        program = {{ git_config_gpg_program }}
+      [core]
+        editor = {{ git_config_core_editor }}
+      [commit]
+        gpgsign = {{ git_config_commit_gpgsign }}
+      [pull]
+        rebase = {{ git_config_pull_rebase }}
+        ff = {{ git_config_pull_ff }}
+      [rebase]
+        autostash = {{ git_config_rebase_autostash }}
+      [merge]
+        autostash = {{ git_config_merge_autostash }}
+      [init]
+        defaultBranch = {{ git_config_init_default_branch }}
+      [alias]
+      {% for alias in git_config_alias %}
+        {{ alias.name }} = {{ alias.command }}
+      {% endfor %}
+      
+      {% for credentialset in git_config_credentials %}
+      [credential "{{ credentialset.remote_url }}"]
+      {% for entry in credentialset.config | dict2items %}
+        {{ entry.key }} = {{ entry.value }}
+      {% endfor %}
+
+      {% endfor %}

@@ -1,0 +1,15 @@
+---
+
+git_config_file: ~/.gitconfig
+
+git_config_gpg_program: gpg2
+git_config_commit_gpgsign: false
+git_config_pull_rebase: true
+git_config_pull_ff: only
+git_config_rebase_autostash: true
+git_config_merge_autostash: true
+git_config_init_default_branch: main
+git_config_core_editor: vim
+
+git_config_user: []
+git_config_credentials: []
