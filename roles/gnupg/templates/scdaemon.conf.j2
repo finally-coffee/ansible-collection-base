@@ -1,0 +1,12 @@
+{% if gpg_scdaemon_config_disable_ccid | default(false) %}
+disable-ccid
+{% endif %}
+{% if gpg_scdaemon_config_card_timeout | default(false) %}
+card-timeout {{ gpg_scdaemon_config_card_timeout }}
+{% endif %}
+{% if gpg_scdaemon_config_driver | default(false) %}
+pcsc-driver {{ gpg_scdaemon_config_driver }}
+{% endif %}
+{% if gpg_scdaemon_config_pcsc_shared | default(true) %}
+pcsc-shared
+{% endif %}

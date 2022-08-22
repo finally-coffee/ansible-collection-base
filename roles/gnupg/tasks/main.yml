@@ -30,7 +30,10 @@
     src: gpg-agent.conf.j2
     dest: "{{ gpg_agent_config_file }}"
 
-# attempt to bootstrap the supplied keys here, so the keygrip can be retrieved
+- name: Configure scdaemon.conf (smartcard daemon)
+  template:
+    src: scdaemon.conf.j2
+    dest: "{{ gpg_scdaemon_config_file }}"
 
 - name: Configure sshcontrol (in order for gpg-agent to act as ssh-agent)
   template:
