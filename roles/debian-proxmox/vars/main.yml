@@ -1,0 +1,4 @@
+---
+
+debian_proxmox_supported_debian_versions:
+  - 11

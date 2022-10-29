@@ -1,0 +1,67 @@
+---
+
+- name: Ensure python3-apt and gpg is available
+  apt:
+    package: "{{ debian_proxmox_role_required_packages }}"
+    state: present
+
+- name: Check if target is debian before attempting to convert to proxmox
+  fail:
+    msg: "Target is {{ ansible_distribution }} which is not Debian"
+  when: ansible_distribution != 'Debian'
+
+- name: Check if debian version is supported by role
+  fail:
+    msg: "{{ ansible_distribution }} {{ ansible_distribution_version }} is not supported by the role"
+  when: ansible_distribution_version not in debian_proxmox_supported_debian_versions
+
+- name: Ensure /etc/hosts entries are safe for use with proxmox
+  lineinfile:
+    dest: /etc/hosts
+    line: "{{ item.ip }}\t{{ item.fqdn | default('') }}\t{{ item.aliases | default([]) | join('\t') }}"
+    regex: "{{ item.ip }}.+"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ debian_proxmox_hosts_file }}"
+
+- name: Ensure Proxmox VE apt repository keys are added
+  apt_key:
+    id: "{{ debian_proxmox_apt_repo_fingerprint }}"
+    url: "{{ debian_proxmox_apt_repo_key_url }}"
+    state: present
+
+- name: Ensure Proxmox VE apt repository is added
+  apt_repository:
+    filename: pve-install-repo
+    repo: "{{ debian_proxmox_apt_repo }}"
+    state: present
+  register: proxmox_ve_apt_repo
+
+- name: Ensure APT cache is up to date
+  apt:
+    update_cache: yes
+  when: proxmox_ve_apt_repo.changed
+
+- name: Ensure system is upgraded
+  apt:
+    upgrade: full
+
+- name: Ensure Proxmox VE packages are installed
+  apt:
+    package: "{{ debian_proxmox_apt_packages }}"
+    state: present
+  register: proxmox_ve_installed
+
+- name: Ensure system is rebooted after install of PVE packages
+  reboot:
+    reboot_timeout: "{{ debian_proxmox_max_reboot_timeout_seconds | int }}"
+  when: proxmox_ve_installed.changed
+
+- name: Ensure packages are removed that will conflict with proxmox operation
+  apt:
+    package: "{{ debian_proxmox_apt_packages_to_remove }}"
+    state: absent
+  register: proxmox_apt_packages_removed
+
+- name: Ensure grub was updated after the kernel was removed
+  command: update-grub
+  when: proxmox_apt_packages_removed.changed

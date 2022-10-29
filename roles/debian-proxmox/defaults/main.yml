@@ -1,0 +1,43 @@
+---
+
+debian_proxmox_role_required_packages:
+  - python3-apt
+  - gpg
+
+debian_proxmox_apt_repo_fingerprint: "28139A2F830BD68478A1A01FDD4BA3917E23BF59"
+debian_proxmox_apt_repo_key_url: "https://enterprise.proxmox.com/debian/proxmox-release-{{ ansible_distribution_release }}.gpg"
+
+debian_proxmox_apt_repo_url: "http://download.proxmox.com/debian/pve"
+debian_proxmox_apt_repo: "deb [arch=amd64] {{ debian_proxmox_apt_repo_url }} {{ ansible_distribution_release }} pve-no-subscription"
+
+debian_proxmox_apt_packages:
+  - "proxmox-ve"
+  - "postfix"
+  - "open-iscsi"
+
+debian_proxmox_apt_packages_to_remove:
+  - "linux-image-amd64"
+  - "linux-image-{{ (ansible_facts['kernel'] | split('-') | first | split('.'))[:2] | join('.') }}*"
+  - "os-prober"
+
+debian_proxmox_max_reboot_timeout_seconds: 900
+
+debian_proxmox_public_ip: "{{ ansible_facts['eno1'].ipv4.address }}"
+debian_proxmox_loopback_ipv4: "{{ ansible_facts['lo'].ipv4.address }}"
+
+debian_proxmox_hostname: "{{ ansible_hostname }}"
+debian_proxmox_fqdn: "{{ ansible_fqdn }}"
+
+debian_proxmox_hosts_file:
+  - ip: "{{ debian_proxmox_loopback_ipv4 }}"
+    fqdn: localhost.localdomain
+    aliases:
+      - localhost
+  - ip: "{[ debian_proxmox_public_ip }}"
+    fqdn: "{{ debian_proxmox_fqdn }}"
+    aliases:
+      - "{{ debian_proxmox_hostname }}"
+      - pvelocalhost
+  - ip: 127.0.1.1
+    fqdn: "{{ debian_proxmox_hostname }}"
+    state: absent
