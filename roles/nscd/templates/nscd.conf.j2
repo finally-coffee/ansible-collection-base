@@ -1,0 +1,41 @@
+#logfile	/var/log/nscd.log
+#threads	4
+#max-threads	32
+
+enable-cache		passwd	{{ nscd_config_passwd_auto_propagate | ternary('yes', 'no') }}
+positive-time-to-live	passwd	{{ nscd_config_passwd_positive_ttl_seconds }}
+negative-time-to-live	passwd	{{ nscd_config_passwd_negative_ttl_seconds }}
+suggested-size		passwd	{{ nscd_config_passwd_suggested_size }}
+check-files		passwd	{{ nscd_config_passwd_check_files | ternary('yes', 'no') }}
+persistent		passwd	{{ nscd_config_passwd_persistent | ternary('yes', 'no') }}
+shared			passwd	{{ nscd_config_passwd_shared | ternary('yes', 'no') }}
+max-db-size		passwd	{{ nscd_config_passwd_max_db_size_bytes }}
+auto-propagate		passwd	{{ nscd_config_passwd_auto_propagate | ternary('yes', 'no') }}
+
+enable-cache		group	{{ nscd_config_group_auto_propagate | ternary('yes', 'no') }}
+positive-time-to-live	group	{{ nscd_config_group_positive_ttl_seconds }}
+negative-time-to-live	group	{{ nscd_config_group_negative_ttl_seconds }}
+suggested-size		group	{{ nscd_config_group_suggested_size }}
+check-files		group	{{ nscd_config_group_check_files | ternary('yes', 'no') }}
+persistent		group	{{ nscd_config_group_persistent | ternary('yes', 'no') }}
+shared			group	{{ nscd_config_group_shared | ternary('yes', 'no') }}
+max-db-size		group	{{ nscd_config_group_max_db_size_bytes }}
+auto-propagate		group	{{ nscd_config_group_auto_propagate | ternary('yes', 'no') }}
+
+enable-cache		hosts	{{ nscd_config_hosts_auto_propagate | ternary('yes', 'no') }}
+positive-time-to-live	hosts	{{ nscd_config_hosts_positive_ttl_seconds }}
+negative-time-to-live	hosts	{{ nscd_config_hosts_negative_ttl_seconds }}
+suggested-size		hosts	{{ nscd_config_hosts_suggested_size }}
+check-files		hosts	{{ nscd_config_hosts_check_files | ternary('yes', 'no') }}
+persistent		hosts	{{ nscd_config_hosts_persistent | ternary('yes', 'no') }}
+shared			hosts	{{ nscd_config_hosts_shared | ternary('yes', 'no') }}
+max-db-size		hosts	{{ nscd_config_hosts_max_db_size_bytes }}
+
+enable-cache		services	{{ nscd_config_services_auto_propagate | ternary('yes', 'no') }}
+positive-time-to-live	services	{{ nscd_config_services_positive_ttl_seconds }}
+negative-time-to-live	services	{{ nscd_config_services_negative_ttl_seconds }}
+suggested-size		services	{{ nscd_config_services_suggested_size }}
+check-files		services	{{ nscd_config_services_check_files | ternary('yes', 'no') }}
+persistent		services	{{ nscd_config_services_persistent | ternary('yes', 'no') }}
+shared			services	{{ nscd_config_services_shared | ternary('yes', 'no') }}
+max-db-size		services	{{ nscd_config_services_max_db_size_bytes }}

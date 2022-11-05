@@ -1,0 +1,27 @@
+---
+
+- name: Make sure nscd is installed
+  apt:
+    name: "{{ nscd_apt_package_name }}"
+    state: present
+  when: ansible_facts['pkg_mgr'] == 'apt'
+
+- name: Ensure nscd is configured
+  template:
+    src: nscd.conf.j2
+    dest: "{{ nscd_config_file }}"
+    owner: root
+    group: root
+    mode: "0640"
+
+- name: Ensure systemd service is enabled
+  systemd:
+    service: "{{ nscd_systemd_service_name }}"
+    enabled: true
+  when: ansible_facts['service_mgr'] == 'systemd'
+
+- name: Ensure systemd service is started
+  systemd:
+    service: "{{ nscd_systemd_service_name }}"
+    state: started
+  when: ansible_facts['service_mgr'] == 'systemd'

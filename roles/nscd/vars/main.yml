@@ -1,0 +1,4 @@
+---
+
+nscd_apt_package_name: nscd
+nscd_systemd_service_name: nscd.service

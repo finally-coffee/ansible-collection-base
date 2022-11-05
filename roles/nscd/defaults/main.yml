@@ -1,0 +1,41 @@
+---
+
+nscd_config_file: /etc/nscd.conf
+
+nscd_config_password_enable_cache: true
+nscd_config_password_positive_ttl_seconds: 300
+nscd_config_password_negative_ttl_seconds: 10
+nscd_config_password_suggested_size: 221
+nscd_config_password_check_files: true
+nscd_config_password_persistent: true
+nscd_config_password_shared: true
+nscd_config_password_max_db_size_bytes: 33554432
+nscd_config_password_auto_propagate: yes
+
+nscd_config_group_enable_cache: true
+nscd_config_group_positive_ttl_seconds: 900
+nscd_config_group_negative_ttl_seconds: 30
+nscd_config_group_suggested_size: 221
+nscd_config_group_check_files: true
+nscd_config_group_persistent: true
+nscd_config_group_shared: true
+nscd_config_group_max_db_size_bytes: 33554432
+nscd_config_group_auto_propagate: yes
+
+nscd_config_hosts_enable_cache: true
+nscd_config_hosts_positive_ttl_seconds: 1800
+nscd_config_hosts_negative_ttl_seconds: 60
+nscd_config_hosts_suggested_size: 221
+nscd_config_hosts_check_files: true
+nscd_config_hosts_persistent: true
+nscd_config_hosts_shared: true
+nscd_config_hosts_max_db_size_bytes: 33554432
+
+nscd_config_services_enable_cache: true
+nscd_config_services_positive_ttl_seconds: 28800
+nscd_config_services_negative_ttl_seconds: 20
+nscd_config_services_suggested_size: 221
+nscd_config_services_check_files: true
+nscd_config_services_persistent: true
+nscd_config_services_shared: true
+nscd_config_services_max_db_size_bytes: 33554432
