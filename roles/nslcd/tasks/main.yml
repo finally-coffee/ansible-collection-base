@@ -1,0 +1,27 @@
+---
+
+- name: Ensure nslcd is installed
+  apt:
+    name: "{{ nslcd_apt_package_name }}"
+    state: present
+  when: ansible_facts['pkg_mgr'] == 'apt'
+
+- name: Ensure config is templated
+  template:
+    src: nslcd.conf.j2
+    dest: /etc/nslcd.conf
+    owner: root
+    group: root
+    mode: "0640"
+
+- name: Ensure systemd service is enabled
+  systemd:
+    service: "{{ nslcd_systemd_service_name }}"
+    enabled: true
+  when: ansible_facts['service_mgr'] == 'systemd'
+
+- name: Ensure systemd service is running
+  systemd:
+    service: "{{ nslcd_systemd_service_name }}"
+    state: started
+  when: ansible_facts['service_mgr'] == 'systemd'

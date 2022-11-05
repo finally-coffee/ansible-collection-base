@@ -1,0 +1,20 @@
+---
+
+nslcd_config_uid: nslcd
+nslcd_config_gid: nslcd
+
+nslcd_config_ldap_uri: ldaps://127.0.0.1
+nslcd_config_ldap_base: ~
+nslcd_config_ldap_scope: sub
+nslcd_config_ldap_version: 3
+nslcd_config_ldap_bind_dn: ~
+nslcd_config_ldap_bind_pw: ~
+nslcd_config_ldap_root_pw_mod_dn: ~
+nslcd_config_ldap_ssl: on
+nslcd_config_ldap_tls_reqcert: always
+nslcd_config_ldap_tls_cacertfile: /etc/ssl/certs/ca-certificates.crt
+
+nslcd_config_pam_authz_search: >-2
+  (&(objectClass=posixAccount)(uid=$username)(|
+    (host=$hostname)(host=$fqdn)
+  ))

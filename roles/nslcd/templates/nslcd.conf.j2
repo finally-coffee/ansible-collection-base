@@ -1,0 +1,17 @@
+uid {{ nslcd_config_uid }}
+gid {{ nslcd_config_gid }}
+
+uri {{ nslcd_config_ldap_uri }}
+base {{ nslcd_config_ldap_base }}
+binddn {{ nslcd_config_ldap_bind_dn }}
+bindpw {{ nslcd_config_ldap_bind_pw }}
+ldap_version {{ nslcd_config_ldap_version }}
+
+rootpwmoddn {{ nslcd_config_ldap_root_pw_mod_dn }}
+
+ssl {{ nslcd_config_ldap_ssl }}
+tls_reqcert {{ nslcd_config_ldap_tls_reqcert }}
+tls_cacertfile {{ nslcd_config_ldap_tls_cacertfile }}
+
+scope {{ nslcd_config_ldap_scope }}
+pam_authz_search {{ nslcd_config_ldap_pam_authz_search }}
