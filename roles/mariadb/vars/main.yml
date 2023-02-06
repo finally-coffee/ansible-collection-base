@@ -1,0 +1,10 @@
+---
+
+mariadb_container_database_environment:
+  MARIADB_DATABASE: "{{ mariadb_database }}"
+  MARIADB_USER: "{{ mariadb_username }}"
+  MARIADB_PASSWORD: "{{ mariadb_password }}"
+
+mariadb_container_data_path: /var/lib/mysql
+mariadb_container_volumes: "{{ mariadb_container_base_volumes + mariadb_container_extra_volumes }}"
+mariadb_container_labels: "{{ mariadb_container_base_labels | combine(mariadb_container_extra_labels, recursive=True) }}"

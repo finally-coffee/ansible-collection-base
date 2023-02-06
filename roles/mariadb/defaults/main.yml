@@ -1,0 +1,32 @@
+---
+
+mariadb_version: "10.6.11"
+mariadb_base_path: /var/lib/mariadb
+mariadb_data_path: "{{ mariadb_base_path }}/{{ mariadb_version }}"
+
+mariadb_root_password: ~
+mariadb_database: ~
+mariadb_username: ~
+mariadb_password: ~
+
+mariadb_container_base_environment:
+  MARIADB_ROOT_PASSWORD: "{{ mariadb_root_password }}"
+mariadb_container_extra_environment: {}
+
+mariadb_container_name: mariadb
+mariadb_container_image_name: docker.io/mariadb
+mariadb_container_image_tag: ~
+mariadb_container_image: "{{ mariadb_container_image_name }}:{{ mariadb_container_image_tag | default(mariadb_version, true) }}"
+mariadb_container_base_volumes:
+  - "{{ mariadb_data_path }}:{{ mariadb_container_data_path }}:z"
+mariadb_container_extra_volumes: []
+mariadb_container_base_labels:
+  version: "{{ mariadb_version }}"
+mariadb_container_extra_labels: {}
+mariadb_container_restart_policy: "unless-stopped"
+mariadb_container_environment: >-2
+  {{ mariadb_container_base_environment
+  | combine(mariadb_container_database_environment
+      if (mariadb_database and mariadb_username and mariadb_password)
+      else {}, recursive=True)
+  | combine(mariadb_container_extra_environment) }}

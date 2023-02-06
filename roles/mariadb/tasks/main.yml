@@ -1,0 +1,20 @@
+---
+- name: Ensure mariaDB container image is present on host
+  community.docker.docker_image:
+    name: "{{ mariadb_container_image }}"
+    state: present
+    source: pull
+
+- name: Ensure mariaDB {{ mariadb_version }} is running as '{{ mariadb_container_name }}'
+  community.docker.docker_container:
+    name: "{{ mariadb_container_name }}"
+    image: "{{ mariadb_container_image }}"
+    env: "{{ mariadb_container_environment }}"
+    ports: "{{ mariadb_container_ports }}"
+    labels: "{{ mariadb_container_labels }}"
+    volumes: "{{ mariadb_container_volumes }}"
+    networks: "{{ mariadb_container_networks | default(omit, true) }}"
+    etc_hosts: "{{ mariadb_container_etc_hosts | default(omit, true) }}"
+    purge_networks: "{{ mariadb_container_purge_networks | default(omit, true) }}"
+    restart_policy: "{{ mariadb_container_restart_policy }}"
+    state: started
