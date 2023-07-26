@@ -5,6 +5,7 @@
 This ansible collection provides various roles for installing
 and configuring basic system utilities like gnupg, ssh etc
 
+- [`git`](roles/git/README.md): configures git on the target system
 - [`nginx`](roles/nginx/README.md): [nginx](https://www.nginx.com/),
   an advanced load balancer, webserver and reverse proxy.
 
