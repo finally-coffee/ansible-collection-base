@@ -1,0 +1,33 @@
+---
+
+nginx_version: "1.25.1"
+nginx_flavour: alpine
+nginx_base_path: /opt/nginx
+nginx_config_file: "{{ nginx_base_path }}/nginx.conf"
+
+nginx_container_name: nginx
+nginx_container_image_reference: >-
+  {{
+    nginx_container_image_repository
+    + ':' + (nginx_container_image_tag
+      | default(nginx_version
+      + (('-' + nginx_flavour) if nginx_flavour is defined else ''), true))
+  }}
+nginx_container_image_repository: >-
+  {{
+    (
+      container_registries[nginx_container_image_registry]
+      | default(nginx_container_image_registry)
+    )
+    + '/'
+    + nginx_container_image_namespace | default('')
+    + nginx_container_image_name
+  }}
+nginx_container_image_registry: "docker.io"
+nginx_container_image_name: "nginx"
+nginx_container_image_tag: ~
+
+nginx_container_restart_policy: "unless-stopped"
+nginx_container_volumes:
+  - "{{ nginx_config_file }}:/etc/nginx/conf.d/nginx.conf:ro"
+ 

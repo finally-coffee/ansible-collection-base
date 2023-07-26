@@ -1,0 +1,8 @@
+---
+
+- name: Ensure nginx container '{{ nginx_container_name }}' is restarted
+  community.docker.docker_container:
+    name: "{{ nginx_container_name }}"
+    state: started
+    restart: true
+  listen: restart-nginx

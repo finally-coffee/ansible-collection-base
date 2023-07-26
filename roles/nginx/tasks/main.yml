@@ -1,0 +1,37 @@
+---
+
+- name: Ensure base path '{{ nginx_base_path }}' exists
+  ansible.builtin.file:
+    path: "{{ nginx_base_path }}"
+    state: directory
+    mode: 0755
+
+- name: Ensure nginx config file is templated
+  ansible.builtin.copy:
+    dest: "{{ nginx_config_file }}"
+    content: "{{ nginx_config }}"
+    mode: 0640
+  notify:
+    - restart-nginx
+
+- name: Ensure docker container image is present
+  community.docker.docker_image:
+    name: "{{ nginx_container_image_reference }}"
+    state: present
+    source: pull
+    force_source: "{{ nginx_container_image_tag is defined and nginx_container_image_tag | string != '' }}"
+
+- name: Ensure docker container '{{ nginx_container_name }}' is running
+  community.docker.docker_container:
+    name: "{{ nginx_container_name }}"
+    image: "{{ nginx_container_image_reference }}"
+    env: "{{ nginx_container_env | default(omit, true) }}"
+    user: "{{ nginx_container_user | default(omit, true) }}"
+    ports: "{{ nginx_container_ports | default(omit, true) }}"
+    labels: "{{ nginx_container_labels | default(omit, true) }}"
+    volumes: "{{ nginx_container_volumes | default(omit, true) }}"
+    etc_hosts: "{{ nginx_container_etc_hosts | default(omit, true) }}"
+    networks: "{{ nginx_container_networks | default(omit, true) }}"
+    purge_networks: "{{ nginx_container_purge_networks | default(omit, true) }}"
+    restart_policy: "{{ nginx_container_restart_policy }}"
+    state: started
