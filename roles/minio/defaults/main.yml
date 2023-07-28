@@ -1,0 +1,40 @@
+---
+
+minio_user: ~
+minio_data_path: /opt/minio
+
+minio_create_user: false
+minio_manage_host_filesystem: false
+
+minio_root_username: root
+minio_root_password: ~
+
+minio_container_name: minio
+minio_container_image_name: docker.io/minio/minio
+minio_container_image_tag: latest
+minio_container_image: "{{ minio_container_image_name }}:{{ minio_container_image_tag }}"
+minio_container_networks: []
+minio_container_ports: []
+
+minio_container_base_volumes:
+  - "{{ minio_data_path }}:{{ minio_container_data_path }}:z"
+minio_container_extra_volumes: []
+
+minio_container_base_env:
+  MINIO_ROOT_USER: "{{ minio_root_username }}"
+  MINIO_ROOT_PASSWORD: "{{ minio_root_password }}"
+minio_container_extra_env: {}
+
+minio_container_labels: {}
+
+minio_container_command:
+  - "server"
+  - "{{ minio_container_data_path }}"
+  - "--console-address \":{{ minio_container_listen_port_console }}\""
+minio_container_restart_policy: "unless-stopped"
+minio_container_image_force_source: "{{ (minio_container_image_tag == 'latest')|bool }}"
+
+minio_container_listen_port_api: 9000
+minio_container_listen_port_console: 8900
+
+minio_container_data_path: /storage

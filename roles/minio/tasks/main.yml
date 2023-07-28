@@ -1,0 +1,37 @@
+---
+
+- name: Ensure minio run user is present
+  user:
+    name: "{{ minio_user }}"
+    state: present
+    system: yes
+  when: minio_create_user
+
+- name: Ensure filesystem mounts ({{ minio_data_path }}) for container volumes are present
+  file:
+    path: "{{ minio_data_path }}"
+    state: directory
+    user: "{{ minio_user|default(omit, True) }}"
+    group: "{{ minio_user|default(omit, True) }}"
+  when: minio_manage_host_filesystem
+
+- name: Ensure container image for minio is present
+  community.docker.docker_image:
+    name: "{{ minio_container_image }}"
+    state: present
+    source: pull
+    force_source: "{{ minio_container_image_force_source }}"
+
+- name: Ensure container {{ minio_container_name }} is running
+  docker_container:
+    name: "{{ minio_container_name }}"
+    image: "{{ minio_container_image }}"
+    volumes: "{{ minio_container_volumes }}"
+    env: "{{ minio_container_env }}"
+    labels: "{{ minio_container_labels }}"
+    networks: "{{ minio_container_networks }}"
+    ports: "{{ minio_container_ports }}"
+    user: "{{ minio_user|default(omit, True) }}"
+    command: "{{ minio_container_command }}"
+    restart_policy: "{{ minio_container_restart_policy }}"
+    state: started

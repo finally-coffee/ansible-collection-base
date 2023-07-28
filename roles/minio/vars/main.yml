@@ -1,0 +1,5 @@
+---
+
+minio_container_volumes: "{{ minio_container_base_volumes + minio_container_extra_volumes }}"
+
+minio_container_env: "{{ minio_container_base_env | combine(minio_container_extra_env) }}"
