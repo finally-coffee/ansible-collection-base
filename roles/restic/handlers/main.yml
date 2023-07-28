@@ -1,0 +1,13 @@
+---
+
+- name: Ensure system daemon is reloaded
+  listen: reload-systemd
+  systemd:
+    daemon_reload: true
+
+- name: Ensure systemd service for '{{ restic_job_name }}' is started immediately
+  listen: trigger-restic
+  systemd:
+    name: "{{ restic_systemd_unit_naming_scheme }}.service"
+    state: started
+  when: restic_start_job_on_unit_change

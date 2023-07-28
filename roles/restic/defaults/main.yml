@@ -1,0 +1,37 @@
+---
+
+restic_repo_url: ~
+restic_repo_password: ~
+restic_s3_key_id: ~
+restic_s3_access_key: ~
+
+restic_backup_paths: []
+restic_backup_stdin_command: ~
+restic_backup_stdin_command_filename: ~
+
+restic_policy_keep_all_within: 1d
+restic_policy_keep_hourly: 6
+restic_policy_keep_daily: 2
+restic_policy_keep_weekly: 7
+restic_policy_keep_monthly: 4
+restic_policy_backup_frequency: hourly
+
+restic_policy:
+  keep_within: "{{ restic_policy_keep_all_within }}"
+  hourly: "{{ restic_policy_keep_hourly }}"
+  daily: "{{ restic_policy_keep_daily }}"
+  weekly: "{{ restic_policy_keep_weekly }}"
+  monthly: "{{ restic_policy_keep_monthly }}"
+  frequency: "{{ restic_policy_backup_frequency }}"
+
+restic_user: root
+restic_create_user: false
+restic_start_job_on_unit_change: false
+
+restic_job_name: ~
+restic_job_description: "Restic backup job for {{ restic_job_name }}"
+restic_systemd_unit_naming_scheme: "restic.{{ restic_job_name }}"
+restic_systemd_working_directory: /tmp
+restic_systemd_syslog_identifier: "restic-{{ restic_job_name }}"
+
+restic_package_name: restic

@@ -1,0 +1,77 @@
+---
+
+- name: Ensure {{ restic_user }} system user exists
+  user:
+    name: "{{ restic_user }}"
+    state: present
+    system: true
+  when: restic_create_user
+
+- name: Ensure either backup_paths or backup_stdin_command is populated
+  when: restic_backup_paths|length > 0 and restic_backup_stdin_command
+  fail:
+    msg: "Setting both `restic_backup_paths` and `restic_backup_stdin_command` is not supported"
+
+- name: Ensure a filename for stdin_command backup is given
+  when: restic_backup_stdin_command and not restic_backup_stdin_command_filename
+  fail:
+    msg: "`restic_backup_stdin_command` was set but no filename for the resulting output was supplied in `restic_backup_stdin_command_filename`"
+
+- name: Ensure backup frequency adheres to systemd's OnCalender syntax
+  command:
+    cmd: "systemd-analyze calendar {{ restic_policy.frequency }}"
+  register: systemd_calender_parse_res
+  failed_when: systemd_calender_parse_res.rc != 0
+  changed_when: false
+
+- name: Ensure restic is installed
+  block:
+    - name: Ensure restic is installed via apt
+      apt:
+        package: restic
+        state: latest
+      when: ansible_os_family == 'Debian'
+    - name: Ensure restic is installed via dnf
+      dnf:
+        name: restic
+        state: latest
+      when: ansible_os_family == 'RedHat'
+    - name: Ensure restic is installed using the auto-detected package-manager
+      package:
+        name: "{{ restic_package_name }}"
+        state: present
+      when: ansible_os_family not in ['RedHat', 'Debian']
+
+- name: Ensure systemd service file for '{{ restic_job_name }}' is templated
+  template:
+    dest: "/etc/systemd/system/{{ restic_systemd_unit_naming_scheme }}.service"
+    src: restic.service.j2
+    owner: root
+    group: root
+    mode: 0640
+  notify:
+    - reload-systemd
+    - trigger-restic
+
+- name: Ensure systemd service file for '{{ restic_job_name }}' is templated
+  template:
+    dest: "/etc/systemd/system/{{ restic_systemd_unit_naming_scheme }}.timer"
+    src: restic.timer.j2
+    owner: root
+    group: root
+    mode: 0640
+  notify:
+    - reload-systemd
+
+- name: Flush handlers to ensure systemd knows about '{{ restic_job_name }}'
+  meta: flush_handlers
+
+- name: Ensure systemd timer for '{{ restic_job_name }}' is activated
+  systemd:
+    name: "{{ restic_systemd_unit_naming_scheme }}.timer"
+    enabled: true
+
+- name: Ensure systemd timer for '{{ restic_job_name }}' is started
+  systemd:
+    name: "{{ restic_systemd_unit_naming_scheme }}.timer"
+    state: started

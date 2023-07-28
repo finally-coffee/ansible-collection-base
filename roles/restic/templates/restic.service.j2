@@ -1,0 +1,28 @@
+[Unit]
+Description={{ restic_job_description }}
+
+[Service]
+Type=oneshot
+User={{ restic_user }}
+WorkingDirectory={{ restic_systemd_working_directory }}
+SyslogIdentifier={{ restic_systemd_syslog_identifier }}
+
+Environment=RESTIC_REPOSITORY={{ restic_repo_url }}
+Environment=RESTIC_PASSWORD={{ restic_repo_password }}
+{% if restic_s3_key_id and restic_s3_access_key %}
+Environment=AWS_ACCESS_KEY_ID={{ restic_s3_key_id }}
+Environment=AWS_SECRET_ACCESS_KEY={{ restic_s3_access_key }}
+{% endif %}
+
+ExecStartPre=-/bin/sh -c '/usr/bin/restic snapshots || /usr/bin/restic init'
+{% if restic_backup_stdin_command %}
+ExecStart=/bin/sh -c '{{ restic_backup_stdin_command }} | /usr/bin/restic backup --verbose --stdin --stdin-filename {{ restic_backup_stdin_command_filename }}'
+{% else %}
+ExecStart=/usr/bin/restic --verbose backup {{ restic_backup_paths | join(' ') }}
+{% endif %}
+ExecStartPost=/usr/bin/restic forget --prune --keep-within={{ restic_policy.keep_within }} --keep-hourly={{ restic_policy.hourly }} --keep-daily={{ restic_policy.daily }} --keep-weekly={{ restic_policy.weekly }} --keep-monthly={{ restic_policy.monthly }}
+ExecStartPost=-/usr/bin/restic snapshots
+ExecStartPost=/usr/bin/restic check
+
+[Install]
+WantedBy=multi-user.target
