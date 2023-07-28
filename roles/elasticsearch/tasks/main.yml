@@ -1,0 +1,32 @@
+---
+
+- name: Ensure host directories are present
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0777"
+  loop:
+    - "{{ elasticsearch_base_path }}"
+    - "{{ elasticsearch_data_path }}"
+
+- name: Ensure elastic container image is present
+  docker_image:
+    name: "{{ elasticsearch_container_image }}"
+    state: present
+    source: pull
+    force_source: "{{ elasticsearch_container_image_tag|default(false, true)|bool }}"
+
+- name: Ensure elastic container is running
+  docker_container:
+    name: "{{ elasticsearch_container_name }}"
+    image: "{{ elasticsearch_container_image }}"
+    env: "{{ elasticsearch_container_env | default(omit, True) }}"
+    user: "{{ elasticsearch_container_user | default(omit, True) }}"
+    ports: "{{ elasticsearch_container_ports | default(omit, True) }}"
+    labels: "{{ elasticsearch_container_labels | default(omit, True) }}"
+    volumes: "{{ elasticsearch_container_volumes }}"
+    ulimits: "{{ elasticsearch_container_ulimits }}"
+    networks: "{{ elasticsearch_container_networks | default(omit, True) }}"
+    purge_networks: "{{ elasticsearch_container_purge_networks | default(omit, True) }}"
+    restart_policy: "{{ elasticsearch_container_restart_policy }}"
+    state: started
