@@ -1,0 +1,50 @@
+---
+
+- name: Ensure redis user '{{ redis_user }}' is present
+  ansible.builtin.user:
+    name: "{{ redis_user }}"
+    state: "present"
+    system: true
+    create_home: false
+    groups: "{{ redis_user_groups | default(omit) }}"
+    append: "{{ redis_user_groups is defined | ternary('true', omit) }}"
+  register: redis_user_info
+
+- name: Ensure redis configuration is written out
+  ansible.builtin.copy:
+    content: |+
+      {% for key, value in redis_config_to_write %}
+      {{ key }} {{ value }}
+      {% endfor %}
+    dest: "{{ redis_config_file }}"
+    owner: "{{ redis_user_info.uid | default(redis_user) }}"
+    group: "{{ redis_user_info.group | default(redis_user) }}"
+    mode: "0640"
+  notify:
+    - restart-redis
+
+- name: Ensure container image is present on host
+  community.docker.docker_image:
+    name: "{{ redis_container_image_reference }}"
+    state: "present"
+    source: "pull"
+    force_source: "{{ redis_container_image_tag | bool }}"
+  when: "redis_deployment_method == 'docker'"
+
+- name: Ensure redis container '{{ redis_container_name }}' is '{{ redis_container_state }}'
+  community.docker.docker_container:
+    name: "{{ redis_container_name }}"
+    image: "{{ redis_container_image_reference }}"
+    env: "{{ redis_container_env | default(omit) }}"
+    ports: "{{ redis_container_ports | default(omit) }}"
+    labels: "{{ redis_container_all_labels }}"
+    volumes: "{{ redis_container_all_volumes }}"
+    networks: "{{ redis_container_networks | default(omit) }}"
+    purge_networks: "{{ redis_container_purge_networks | default(omit) }}"
+    etc_hosts: "{{ redis_container_etc_hosts | default(omit) }}"
+    memory: "{{ redis_container_memory | default(omit) }}"
+    memory_swap: "{{ redis_container_memory_swap | default(omit) }}"
+    restart_policy: "{{ redis_container_restart_policy }}"
+    state: "{{ redis_container_state }}"
+  register: redis_container_info
+  when: "redis_deployment_method == 'docker'"

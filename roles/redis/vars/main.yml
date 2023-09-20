@@ -1,0 +1,13 @@
+---
+
+redis_base_config:
+  dbfilename: "{{ redis_config_dbfilename }}"
+  dir: "{{ redis_data_directory }}"
+  bind: "{{ redis_config_bind | join(' ') }}"
+  port: "{{ redis_config_port }}"
+  "protected-mode": "{{ redis_config_protected_mode | ternary('yes', 'no') }}"
+  unixsocket: "{{ redis_config_unix_socket }}"
+  unixsocketperm: "{{ redis_config_unix_socket_perm }}"
+
+redis_config_to_write: >-
+  {{ redis_base_config | combine(redis_config | default({}), recursive=True) }}

@@ -1,0 +1,51 @@
+---
+
+redis_instance: ''
+redis_version: "7.2"
+redis_user: "redis{{ '-' ~ redis_instance }}"
+redis_deployment_method: docker
+redis_config_file: "/etc/redis/redis{{ '-' ~ redis_instance }}.conf"
+redis_data_directory: "/var/lib/redis/"
+
+redis_config_dbfilename: "redis{{ '-' ~ redis_instance }}.rdb"
+redis_config_dir: "{{ redis_data_directory }}"
+redis_config_bind:
+  - -::1
+  - "{{ (redis_deployment_method == 'docker') | ternary('0.0.0.0', '127.0.0.1') }}"
+  - "{{ (redis_deployment_method == 'docker') | ternary('-::*', '::1') }}"
+redis_config_port: "6379"
+redis_config_procted_mode: true
+#redis_config_maxmemory_bytes: 100mb
+#redis_config_maxmemory_policy: noeviction
+redis_config_unix_socket: "/run/redis.sock"
+redis_config_unix_socket_perm: "700"
+
+redis_container_name: "redis{{ '_' ~ redis_instance }}" 
+redis_container_image_flavour: alpine
+redis_container_image_registry: "docker.io"
+redis_container_image_namespace: ~
+redis_container_image_name: "redis"
+redis_container_image_reference: >-
+  {{ redis_container_image_repository ~ ':'
+      ~ redis_container_image_tage | default(
+        redis_version ~ (redis_container_image_flavour | ternary(
+          '-' ~ redis_container_image_flavour, '')), true) }}
+redis_container_image_repository: >-
+  {{ redis_container_image_registry ~ '/'
+     ~ (redis_container_image_namespace | ternary(redis_container_image_namespace ~ '/'))
+     ~ redis_container_image_name }}
+redis_container_ports:
+  - "127.0.0.1:{{ redis_config_port }}:{{ redis_config_port }}"
+  - "[i::1]:{{ redis_config_port }}:{{ redis_config_port }}"
+redis_container_restart_policy: "unless-stopped"
+redis_container_state: "started"
+
+redis_container_base_labels:
+  version: "{{ redis_version }}"
+redis_container_all_labels: >-
+  {{ redis_container_base_labels | combine(redis_container_labels | default({})) }}
+redis_container_base_volumes:
+  - "{{ redis_config_file }}:/usr/local/etc/redis/redis.conf:ro"
+  - "{{ redis_data_directory }}:{{ redis_data_directory }}:rw"
+redis_container_all_volumes: >-
+  {{ redis_container_base_volumes + redis_container_volumes | default([]) }}
