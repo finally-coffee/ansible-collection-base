@@ -1,0 +1,92 @@
+---
+- name: Ensure unix group '{{ powerdns_tsig_key_path_group }}' exists
+  ansible.builtin.group:
+    name: "{{ powerdns_tsig_key_path_group }}"
+    state: "present"
+    system: true
+  register: powerdns_tsig_key_path_group_info
+  when: powerdns_tsig_key_path_group is defined
+
+- name: Ensure unix user '{{ powerdns_tsig_key_path_owner }}' exists
+  ansible.builtin.user:
+    name: "{{ powerdns_tsig_key_path_owner }}"
+    state: "present"
+    system: true
+    create_home: false
+    groups: "{{ powerdns_tsig_key_path_group is defined | ternary([powerdns_tsig_key_path_group], omit) }}"
+    append: "{{ powerdns_tsig_key_path_group is defined | ternary(true, omit) }}"
+  register: powerdns_tsig_key_path_owner_info
+  when: powerdns_tsig_key_path_owner is defined
+
+- name: Check if TSIG key is already present
+  ansible.builtin.stat:
+    path: "{{ powerdns_tsig_key_path }}"
+  register: powerdns_tsig_key_info
+
+- name: Ensure TSIG key directory is present
+  ansible.builtin.file:
+    path: "{{ powerdns_tsig_key_path | dirname }}"
+    state: directory
+    owner: "{{ powerdns_tsig_key_path_owner | default(omit) }}"
+    group: "{{ powerdns_tsig_key_path_group | default(omit) }}"
+    mode: "u+rwX,g-rwx,o-rwx"
+    recurse: true
+
+- name: Ensure a TSIG key is configured and persisted
+  when: >-
+    not powerdns_tsig_key_info.stat.exists
+    or powerdns_tsig_key_info.stat.size == 0
+  block:
+    - name: Ensure TSIG key is not already present
+      community.docker.docker_container_exec:
+        container: "{{ powerdns_tsig_key_container_name }}"
+        command: "pdnsutil list-tsig-keys"
+      delegate_to: "{{ powerdns_tsig_key_hostname }}"
+      register: powerdns_tsig_key_powerdns_info
+      changed_when: false
+      check_mode: false
+      become: true
+
+    - name: Ensure TSIG key is generated in powerdns
+      community.docker.docker_container_exec:
+        container: "{{ powerdns_tsig_key_container_name }}"
+        command: "pdnsutil generate-tsig-key '{{ powerdns_tsig_key_name }}' '{{ powerdns_tsig_key_algo }}'"
+      when: >-
+        (powerdns_tsig_key_name ~ '. ' ~ powerdns_tsig_key_algo ~ '. ')
+        not in powerdns_tsig_key_powerdns_info.stdout
+      delegate_to: "{{ powerdns_tsig_key_hostname }}"
+      register: powerdns_tsig_key_powerdns_generated_key
+      throttle: 1
+      become: true
+
+    - name: Extract TSIG key into variable
+      ansible.builtin.set_fact:
+        powerdns_tsig_key_key: >-
+          {{
+            (powerdns_tsig_key_powerdns_generated_tsig_key.stdout | trim | split(' ') | list | last)
+            if (powerdns_tsig_key_name ~ '. ' ~ powerdns_tsig_key_algo ~ '. ')
+            not in powerdns_tsig_key_powerdns_info.stdout
+            else (powerdns_generated_tsig_key | trim | split(' ') | list | last)
+          }}
+      vars:
+        powerdns_generated_tsig_key: >-
+          {% for line in powerdns_tsig_key_powerdns_info.stdout_lines %}
+          {% if powerdns_tsig_key_name in line %}
+          {{ line }}
+          {% endif %}
+          {% endfor %}
+
+    - name: Ensure TSIG key is persisted into {{ powerdns_tsig_key_path }}
+      ansible.builtin.copy:
+        content: "{{ powerdns_tsig_key_key }}"
+        dest: "{{ powerdns_tsig_key_path }}"
+        owner: "{{ powerdns_tsig_key_path_owner | default(omit) }}"
+        group: "{{ powerdns_tsig_key_path_group | default(omit) }}"
+        mode: "0600"
+
+- name: Ensure TSIG key permissions on {{ powerdns_tsig_key_path }} are correct
+  ansible.builtin.file:
+    path: "{{ powerdns_tsig_key_path }}"
+    owner: "{{ powerdns_tsig_key_path_owner | default(omit) }}"
+    group: "{{ powerdns_tsig_key_path_group | default(omit) }}"
+    mode: "0600"
