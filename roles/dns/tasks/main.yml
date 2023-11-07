@@ -1,0 +1,11 @@
+---
+
+- name: Ensure DNS records in '{{ dns_zone }}' are up to date
+  famedly.dns.update:
+    primary_master: "{{ dns_server }}"
+    zone: "{{ dns_zone }}"
+    tsig_name: "{{ dns_tsig_name }}"
+    tsig_algo: "{{ dns_tsig_algo }}"
+    tsig_key: "{{ dns_tsig_key }}"
+    rr_set: "{{ dns_records }}"
+    state: "{{ dns_record_state }}"
