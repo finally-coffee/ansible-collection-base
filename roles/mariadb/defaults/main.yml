@@ -1,6 +1,6 @@
 ---
 
-mariadb_version: "10.6.16"
+mariadb_version: "10.11.6"
 mariadb_base_path: /var/lib/mariadb
 mariadb_data_path: "{{ mariadb_base_path }}/{{ mariadb_version }}"
 
