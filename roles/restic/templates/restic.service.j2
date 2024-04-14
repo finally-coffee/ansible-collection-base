@@ -2,7 +2,7 @@
 Description={{ restic_job_description }}
 
 [Service]
-Type=oneshot
+Type=simple
 User={{ restic_user }}
 WorkingDirectory={{ restic_systemd_working_directory }}
 SyslogIdentifier={{ restic_systemd_syslog_identifier }}
@@ -22,7 +22,7 @@ ExecStart=/usr/bin/restic --verbose backup {{ restic_backup_paths | join(' ') }}
 {% endif %}
 ExecStartPost=/usr/bin/restic forget --prune --keep-within={{ restic_policy.keep_within }} --keep-hourly={{ restic_policy.hourly }} --keep-daily={{ restic_policy.daily }} --keep-weekly={{ restic_policy.weekly }} --keep-monthly={{ restic_policy.monthly }}
 ExecStartPost=-/usr/bin/restic snapshots
+{% if restic_backup_post_hook %}
+ExecStartPost=-{{ restic_backup_post_hook }}
+{% endif %}
 ExecStartPost=/usr/bin/restic check
-
-[Install]
-WantedBy=multi-user.target
