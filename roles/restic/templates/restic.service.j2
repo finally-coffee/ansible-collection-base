@@ -13,8 +13,14 @@ Environment=RESTIC_PASSWORD={{ restic_repo_password }}
 Environment=AWS_ACCESS_KEY_ID={{ restic_s3_key_id }}
 Environment=AWS_SECRET_ACCESS_KEY={{ restic_s3_access_key }}
 {% endif %}
+{% if restic_unlock_before_backup | default(false) %}
+ExecStartPre=-/bin/sh -c '/usr/bin/restic unlock'
+{% endif %}
 
 ExecStartPre=-/bin/sh -c '/usr/bin/restic snapshots || /usr/bin/restic init'
+{% if restic_backup_pre_hook | default(false) %}
+ExecStart=-{{ restic_backup_pre_hook }}
+{% endif %}
 {% if restic_backup_stdin_command %}
 ExecStart=/bin/sh -c '{{ restic_backup_stdin_command }} | /usr/bin/restic backup --verbose --stdin --stdin-filename {{ restic_backup_stdin_command_filename }}'
 {% else %}
@@ -22,7 +28,7 @@ ExecStart=/usr/bin/restic --verbose backup {{ restic_backup_paths | join(' ') }}
 {% endif %}
 ExecStartPost=/usr/bin/restic forget --prune --keep-within={{ restic_policy.keep_within }} --keep-hourly={{ restic_policy.hourly }} --keep-daily={{ restic_policy.daily }} --keep-weekly={{ restic_policy.weekly }} --keep-monthly={{ restic_policy.monthly }}
 ExecStartPost=-/usr/bin/restic snapshots
-{% if restic_backup_post_hook %}
+{% if restic_backup_post_hook | default(false) %}
 ExecStartPost=-{{ restic_backup_post_hook }}
 {% endif %}
 ExecStartPost=/usr/bin/restic check

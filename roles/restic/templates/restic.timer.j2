@@ -1,9 +1,8 @@
 [Unit]
-Description=Run {{ restic_job_name }}
+Description=Run {{ restic_timer_description | default(restic_job_name) }}
 
 [Timer]
 OnCalendar={{ restic_policy.frequency }}
-Persistent=True
 Unit={{ restic_systemd_unit_naming_scheme }}.service
 
 [Install]

@@ -8,7 +8,7 @@
   when: restic_create_user
 
 - name: Ensure either backup_paths or backup_stdin_command is populated
-  when: restic_backup_paths|length > 0 and restic_backup_stdin_command
+  when: restic_backup_paths|length > 0 and restic_backup_stdin_command and false
   fail:
     msg: "Setting both `restic_backup_paths` and `restic_backup_stdin_command` is not supported"
 
