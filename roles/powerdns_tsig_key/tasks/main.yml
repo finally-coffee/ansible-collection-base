@@ -29,7 +29,7 @@
     state: directory
     owner: "{{ powerdns_tsig_key_path_owner | default(omit) }}"
     group: "{{ powerdns_tsig_key_path_group | default(omit) }}"
-    mode: "u+rwX,g-rwx,o-rwx"
+    mode: "u+rwX,g+rX"
     recurse: true
 
 - name: Ensure a TSIG key is configured and persisted
@@ -55,7 +55,7 @@
         (powerdns_tsig_key_name ~ '. ' ~ powerdns_tsig_key_algo ~ '. ')
         not in powerdns_tsig_key_powerdns_info.stdout
       delegate_to: "{{ powerdns_tsig_key_hostname }}"
-      register: powerdns_tsig_key_powerdns_generated_key
+      register: powerdns_tsig_key_powerdns_generated_tsig_key
       throttle: 1
       become: true
 
@@ -82,11 +82,11 @@
         dest: "{{ powerdns_tsig_key_path }}"
         owner: "{{ powerdns_tsig_key_path_owner | default(omit) }}"
         group: "{{ powerdns_tsig_key_path_group | default(omit) }}"
-        mode: "0600"
+        mode: "0640"
 
 - name: Ensure TSIG key permissions on {{ powerdns_tsig_key_path }} are correct
   ansible.builtin.file:
     path: "{{ powerdns_tsig_key_path }}"
     owner: "{{ powerdns_tsig_key_path_owner | default(omit) }}"
     group: "{{ powerdns_tsig_key_path_group | default(omit) }}"
-    mode: "0600"
+    mode: "u+rwX,g+rwX"
