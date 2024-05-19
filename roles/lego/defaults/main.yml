@@ -1,0 +1,66 @@
+---
+lego_user: "lego"
+lego_version: "4.16.1"
+lego_instance: default
+lego_base_path: "/opt/lego"
+lego_cert_user: "acme-{{ lego_instance }}"
+lego_cert_group: "{{ lego_cert_user }}"
+lego_instance_base_path: "{{ lego_base_path }}/instances"
+lego_instance_path: "{{ lego_instance_base_path }}/{{ lego_instance }}"
+
+lego_cert_domains: []
+lego_cert_key_type: ec256
+lego_cert_days_to_renew: 30
+lego_acme_account_email: ~
+lego_acme_challenge_type: http
+lego_acme_challenge_provider: ~
+lego_letsencrypt_server_urls:
+  qa: "https://acme-staging-v02.api.letsencrypt.org/directory"
+  prod: "https://acme-v02.api.letsencrypt.org/directory"
+lego_acme_server_url: "{{ lego_letsencrypt_server_urls.qa }}"
+
+lego_base_environment:
+  LEGO_CERT_USER: "{{ lego_cert_user }}"
+  LEGO_CERT_GROUP: "{{ lego_cert_group }}"
+  LEGO_CERT_STORE_PATH: "{{ lego_instance_path }}"
+  LEGO_CERT_DAYS_TO_RENEW: "{{ lego_cert_days_to_renew }}"
+  LEGO_KEY_TYPE: "{{ lego_cert_key_type }}"
+  LEGO_ACME_CHALLENGE_TYPE: "{{ lego_acme_challenge_type }}"
+  LEGO_ACME_SERVER: "{{ lego_acme_server_url }}"
+  LEGO_COMMAND_ARGS: "{{ lego_command_args }}"
+
+lego_base_command_config:
+  server: "{{ lego_acme_server_url }}"
+  accept_tos: true
+  email: "{{ lego_acme_account_email }}"
+  path: "{{ lego_instance_path }}"
+  key_type: "{{ lego_cert_key_type }}"
+
+lego_acme_challenge_config: >-
+  {{ {lego_acme_challenge_type: lego_acme_challenge_provider} }}
+
+lego_systemd_unit_path: "/etc/systemd/system"
+lego_systemd_template_unit_name: "lego@.service"
+lego_systemd_template_unit_file: "{{ lego_systemd_template_unit_name }}.j2"
+lego_systemd_service_name: "lego@{{ lego_instance }}.service"
+lego_systemd_environment: >-
+  {{ lego_base_environment | combine(lego_environment | default({})) }}
+lego_full_command_config: >-
+  {{ lego_base_command_config
+  | combine(lego_acme_challenge_config)
+  | combine(lego_command_config | default({})) }}
+
+lego_systemd_timer_name: "lego-{{ lego_instance }}.timer"
+lego_systemd_timer_template: lego.timer.j2
+lego_systemd_timer_calendar: "*-*-* *:00/15:00"
+
+lego_architecture: "amd64"
+lego_os: "linux"
+
+lego_release_archive_server: "https://github.com"
+lego_release_archive_filename: >-
+  lego_v{{ lego_version }}_{{ lego_os }}_{{ lego_architecture }}.tar.gz
+lego_release_archive_url: >-
+  {{ lego_release_archive_server }}/go-acme/lego/releases/download/v{{ lego_version }}/{{ lego_release_archive_filename }}
+lego_release_archive_file_path: "/tmp/{{ lego_release_archive_filename }}"
+lego_release_archive_path: "/tmp/lego_v{{ lego_version }}_{{ lego_os }}_{{ lego_architecture }}"

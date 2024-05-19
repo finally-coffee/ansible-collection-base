@@ -1,0 +1,9 @@
+[Unit]
+Description=Run lego@{{ lego_instance}}.service
+
+[Timer]
+OnCalendar={{ lego_systemd_timer_calendar }}
+Unit=lego@{{ lego_instance }}.service
+
+[Install]
+WantedBy=timers.target

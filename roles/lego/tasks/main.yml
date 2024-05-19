@@ -1,0 +1,150 @@
+---
+- name: Ensure lego cert group is created
+  ansible.builtin.group:
+    name: "{{ lego_cert_group }}"
+    state: present
+    system: true
+
+- name: Ensure lego cert user is created
+  ansible.builtin.user:
+    name: "{{ lego_cert_user }}"
+    state: present
+    system: true
+    create_home: false
+    groups:
+      - "{{ lego_cert_group }}"
+    append: true
+
+- name: Ensure lego user is created
+  ansible.builtin.user:
+    name: "{{ lego_user }}"
+    state: present
+    system: true
+    create_home: false
+    groups:
+      - "{{ lego_cert_group }}"
+    append: true
+
+- name: Ensure lego is installed
+  block:
+    - name: Check if lego is present
+      ansible.builtin.command:
+        cmd: which lego
+      changed_when: false
+      failed_when: false
+      register: lego_binary_info
+
+    - name: Download lego from source
+      ansible.builtin.get_url:
+        url: "{{ lego_release_archive_url }}"
+        url_username: "{{ lego_release_archive_url_username | default(omit) }}"
+        url_password: "{{ lego_release_archive_url_password | default(omit) }}"
+        dest: "{{ lego_release_archive_file_path }}"
+      when: lego_binary_info.rc != 0
+
+    - name: Create folder to uncompress into
+      ansible.builtin.file:
+        dest: "{{ lego_release_archive_path }}"
+        state: directory
+      when: lego_binary_info.rc != 0
+
+    - name: Uncompress lego source archive
+      ansible.builtin.unarchive:
+        src: "{{ lego_release_archive_file_path }}"
+        dest: "{{ lego_release_archive_path }}"
+        remote_src: true
+      when: lego_binary_info.rc != 0
+
+    - name: Ensure lego binary is present in PATH
+      ansible.builtin.copy:
+        src: "{{ lego_release_archive_path }}/lego"
+        dest: "/usr/local/bin/lego"
+        mode: "u+rwx,g+rx,o+rx"
+        remote_src: true
+      when: lego_binary_info.rc != 0
+
+    - name: Ensure intermediate data is gone
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ lego_release_archive_path }}"
+        - "{{ lego_release_archive_file_path }}"
+      when: lego_binary_info.rc != 0
+
+- name: Ensure lego base path exists
+  ansible.builtin.file:
+    path: "{{ lego_base_path }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure template unit file is present
+  ansible.builtin.template:
+    src: "{{ lego_systemd_template_unit_file }}"
+    dest: "{{ lego_systemd_unit_path }}/{{ lego_systemd_template_unit_name }}"
+  notify:
+    - systemd_reload
+
+- name: Ensure env file is templated
+  ansible.builtin.copy:
+    content: |+
+      {% for entry in lego_systemd_environment | dict2items %}
+      {{ entry.key }}={{ entry.value }}
+      {% endfor %}
+    dest: "{{ lego_base_path }}/{{ lego_instance }}.conf"
+
+- name: Ensure timer unit is templated
+  ansible.builtin.template:
+    src: "{{ lego_systemd_timer_template }}"
+    dest: "{{ lego_systemd_unit_path }}/{{ lego_systemd_timer_name }}"
+  notify:
+    - systemd_reload
+
+- name: Ensure handling script is templated
+  ansible.builtin.copy:
+    src: "lego_run.sh"
+    dest: "{{ lego_base_path }}/run.sh"
+    mode: "0755"
+
+- name: Ensure per-instance base path is created
+  ansible.builtin.file:
+    path: "{{ lego_instance_path }}"
+    state: directory
+    owner: "{{ lego_cert_user }}"
+    group: "{{ lego_cert_group }}"
+    mode: "0755"
+
+- name: Ensure per-instance sub folders are created with correct permissions
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ item.owner | default(lego_cert_user) }}"
+    group: "{{ item.group | default(lego_cert_group) }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - path: "{{ lego_instance_path }}/secrets"
+      mode: "0750"
+    - path: "{{ lego_instance_path }}/accounts"
+      mode: "0770"
+    - path: "{{ lego_instance_path }}/certificates"
+      mode: "0775"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Ensure systemd daemon is reloaded
+  meta: flush_handlers
+
+- name: Ensure systemd timer is enabled
+  ansible.builtin.systemd_service:
+    name: "{{ lego_systemd_timer_name }}"
+    enabled: true
+
+- name: Ensure systemd timer is started
+  ansible.builtin.systemd_service:
+    name: "{{ lego_systemd_timer_name }}"
+    state: "started"
+
+- name: Ensure systemd service is started once to obtain the certificate
+  ansible.builtin.systemd_service:
+    name: "{{ lego_systemd_service_name }}"
+    state: "started"

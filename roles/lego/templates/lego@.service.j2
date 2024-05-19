@@ -1,0 +1,13 @@
+[Unit]
+Description=Run lego (letsencrypt client in go)
+
+[Service]
+Type=oneshot
+EnvironmentFile={{ lego_base_path }}/%i.conf
+User=acme-%i
+Group=acme-%i
+ExecStart={{ lego_base_path }}/run.sh
+
+[Install]
+WantedBy=basic.target
+DefaultInstance=default
