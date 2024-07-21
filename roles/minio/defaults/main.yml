@@ -30,7 +30,8 @@ minio_container_labels: {}
 minio_container_command:
   - "server"
   - "{{ minio_container_data_path }}"
-  - "--console-address \":{{ minio_container_listen_port_console }}\""
+  - "--console-address"
+  - ":{{ minio_container_listen_port_console }}"
 minio_container_restart_policy: "unless-stopped"
 minio_container_image_force_source: "{{ (minio_container_image_tag == 'latest')|bool }}"
 
