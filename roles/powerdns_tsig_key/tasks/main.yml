@@ -59,6 +59,18 @@
       throttle: 1
       become: true
 
+    - name: Ensure PowerDNS is restarted
+      community.docker.docker_container:
+        name: "{{ powerdns_tsig_key_container_name }}"
+        state: started
+        restart: true
+      when: >-
+        (powerdns_tsig_key_name ~ '. ' ~ powerdns_tsig_key_algo ~ '. ')
+        not in powerdns_tsig_key_powerdns_info.stdout
+      delegate_to: "{{ powerdns_tsig_key_hostname }}"
+      throttle: 1
+      become: true
+
     - name: Extract TSIG key into variable
       ansible.builtin.set_fact:
         powerdns_tsig_key_key: >-
