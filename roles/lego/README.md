@@ -40,3 +40,7 @@ By default, the lego distribution for `linux` on `amd64` is downloaded. If your 
 ### User management
 
 The role will attempt to create user+group for each seperate lego instance for data isolation (i.e. to avoid leaking a TSIG key from one lego instance to other services). The user and group are of the form `acme-{{ lego_instance }}`. Beware that changing this in `lego_cert_{user,group}` also requires `lego_systemd_{user,group}` to be adjusted!
+
+### Binding to ports < 1024 (HTTP-01 challenge)
+
+Set `lego_binary_allow_net_bind_service: true` to allow the lego binary to bind to ports in the 'privileged' (< 1024) port range.

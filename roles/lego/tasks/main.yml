@@ -63,6 +63,13 @@
         remote_src: true
       when: lego_binary_info.rc != 0
 
+    - name: Ensure lego is allowed to bind to ports < 1024
+      community.general.capabilities:
+        path: "/usr/local/bin/lego"
+        capability: "cap_net_bind_service+ep"
+        state: present
+      when: lego_binary_allow_net_bind_service
+
     - name: Ensure intermediate data is gone
       ansible.builtin.file:
         path: "{{ item }}"
