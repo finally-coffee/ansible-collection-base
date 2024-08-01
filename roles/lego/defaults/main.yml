@@ -5,6 +5,8 @@ lego_instance: default
 lego_base_path: "/opt/lego"
 lego_cert_user: "acme-{{ lego_instance }}"
 lego_cert_group: "{{ lego_cert_user }}"
+lego_systemd_user: "acme-%i"
+lego_systemd_group: "{{ lego_systemd_user }}"
 lego_instance_base_path: "{{ lego_base_path }}/instances"
 lego_instance_path: "{{ lego_instance_base_path }}/{{ lego_instance }}"
 

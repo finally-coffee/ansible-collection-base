@@ -4,8 +4,8 @@ Description=Run lego (letsencrypt client in go)
 [Service]
 Type=oneshot
 EnvironmentFile={{ lego_base_path }}/%i.conf
-User=acme-%i
-Group=acme-%i
+User={{ lego_systemd_user }}
+Group={{ lego_systemd_group }}
 ExecStart={{ lego_base_path }}/run.sh
 
 [Install]
