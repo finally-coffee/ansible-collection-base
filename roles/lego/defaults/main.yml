@@ -5,6 +5,7 @@ lego_instance: default
 lego_base_path: "/opt/lego"
 lego_cert_user: "acme-{{ lego_instance }}"
 lego_cert_group: "{{ lego_cert_user }}"
+lego_cert_mode: "0640" # rw-r-----
 lego_systemd_user: "acme-%i"
 lego_systemd_group: "{{ lego_systemd_user }}"
 lego_instance_base_path: "{{ lego_base_path }}/instances"
@@ -24,6 +25,7 @@ lego_acme_server_url: "{{ lego_letsencrypt_server_urls.qa }}"
 lego_base_environment:
   LEGO_CERT_USER: "{{ lego_cert_user }}"
   LEGO_CERT_GROUP: "{{ lego_cert_group }}"
+  LEGO_CERT_MODE: "{{ lego_cert_mode }}"
   LEGO_CERT_STORE_PATH: "{{ lego_instance_path }}"
   LEGO_CERT_DAYS_TO_RENEW: "{{ lego_cert_days_to_renew }}"
   LEGO_KEY_TYPE: "{{ lego_cert_key_type }}"

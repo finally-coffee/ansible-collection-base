@@ -17,3 +17,6 @@ if [[ $FILES_IN_DIR -gt 2 ]]; then
 else
         $LEGO_BINARY $LEGO_COMMAND_ARGS_EXPANDED run
 fi
+
+ls "$LEGO_CERT_STORE_PATH/certificates" | xargs -I{} -n 1 chmod "$LEGO_CERT_MODE" "$LEGO_CERT_STORE_PATH/certificates/{}"
+ls "$LEGO_CERT_STORE_PATH/certificates" | xargs -I{} -n 1 chown "$LEGO_CERT_USER":"$LEGO_CERT_GROUP" "$LEGO_CERT_STORE_PATH/certificates/{}"
