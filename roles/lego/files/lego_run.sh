@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 LEGO_BINARY=$(/usr/bin/env which lego)
 
 if [[ -n "$LEGO_HTTP_FALLBACK_PORT" ]]; then
+  if ! nc_binary="$(type -p \"nc\")" || [[ -z $nc_binary ]]; then
+    echo "nc not found (in PATH), exiting"
+    exit 1
+  fi
   nc -z 127.0.0.1 $LEGO_HTTP_PORT;
   if [[ $? -eq 0 ]]; then
       LEGO_HTTP_PORT=$LEGO_HTTP_FALLBACK_PORT
@@ -11,12 +17,12 @@ fi
 
 LEGO_COMMAND_ARGS_EXPANDED=$(bash -c "echo $LEGO_COMMAND_ARGS") # This is a bit icky
 
-FILES_IN_DIR=$(find "$LEGO_CERT_STORE_PATH/certificates" | wc -l)
+FILES_IN_DIR=$(find "$LEGO_CERT_STORE_PATH/certificates" -type f | wc -l)
 if [[ $FILES_IN_DIR -gt 2 ]]; then
         $LEGO_BINARY $LEGO_COMMAND_ARGS_EXPANDED renew --days=$LEGO_CERT_DAYS_TO_RENEW
 else
         $LEGO_BINARY $LEGO_COMMAND_ARGS_EXPANDED run
 fi
 
-ls "$LEGO_CERT_STORE_PATH/certificates" | xargs -I{} -n 1 chmod "$LEGO_CERT_MODE" "$LEGO_CERT_STORE_PATH/certificates/{}"
-ls "$LEGO_CERT_STORE_PATH/certificates" | xargs -I{} -n 1 chown "$LEGO_CERT_USER":"$LEGO_CERT_GROUP" "$LEGO_CERT_STORE_PATH/certificates/{}"
+find "$LEGO_CERT_STORE_PATH/certificates/" -type f | xargs -I{} -n 1 chmod "$LEGO_CERT_MODE" "{}"
+find "$LEGO_CERT_STORE_PATH/certificates/" -type f | xargs -I{} -n 1 chown "${LEGO_CERT_USER}:${LEGO_CERT_GROUP}" "{}"
