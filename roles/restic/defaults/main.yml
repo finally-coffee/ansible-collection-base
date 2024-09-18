@@ -10,11 +10,33 @@ restic_backup_stdin_command: ~
 restic_backup_stdin_command_filename: ~
 
 restic_policy_keep_all_within: 1d
-restic_policy_keep_hourly: 6
-restic_policy_keep_daily: 2
-restic_policy_keep_weekly: 7
-restic_policy_keep_monthly: 4
+restic_policy_keep_hourly: 12
+restic_policy_keep_daily: 7
+restic_policy_keep_weekly: 6
+restic_policy_keep_monthly: 6
+restic_policy_keep_yearly: 5
 restic_policy_backup_frequency: hourly
+
+restic_base_environment:
+  RESTIC_JOBNAME: "{{ restic_job_name | default('unknown') }}"
+  RESTIC_FORGET_KEEP_WITHIN: "{{ restic_policy_keep_all_within }}"
+  RESTIC_FORGET_KEEP_HOURLY: "{{ restic_policy_keep_hourly }}"
+  RESTIC_FORGET_KEEP_DAILY: "{{ restic_policy_keep_daily }}"
+  RESTIC_FORGET_KEEP_WEEKLY: "{{ restic_policy_keep_weekly }}"
+  RESTIC_FORGET_KEEP_MONTHLY: "{{ restic_policy_keep_monthly }}"
+  RESTIC_FORGET_KEEP_YEARLY: "{{ restic_policy_keep_yearly }}"
+
+restic_s3_environment:
+  AWS_ACCESS_KEY_ID: "{{ restic_s3_key_id }}"
+  AWS_SECRET_ACCESS_KEY: "{{ restic_s3_access_key }}"
+
+restic_complete_environment: >-
+  {{
+    restic_base_environment
+    | combine((restic_s3_environment
+      if (restic_s3_key_id and restic_s3_access_key) else {}) | default({}))
+    | combine(restic_environment | default({}))
+  }}
 
 restic_policy:
   keep_within: "{{ restic_policy_keep_all_within }}"
@@ -22,6 +44,7 @@ restic_policy:
   daily: "{{ restic_policy_keep_daily }}"
   weekly: "{{ restic_policy_keep_weekly }}"
   monthly: "{{ restic_policy_keep_monthly }}"
+  yearly: "{{ restic_policy_keep_yearly }}"
   frequency: "{{ restic_policy_backup_frequency }}"
 
 restic_user: root
