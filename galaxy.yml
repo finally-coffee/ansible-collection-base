@@ -1,10 +1,12 @@
 namespace: finallycoffee
 name: base
-version: 0.0.2
+version: 0.1.0
 readme: README.md
 authors:
 - transcaffeine <transcaffeine@finally.coffee>
 description: Roles for base services which are common dependencies other services like databases
+dependencies:
+  "community.docker": "^1.10.0"
 license_file: LICENSE.md
 build_ignore:
 - '*.tar.gz'
