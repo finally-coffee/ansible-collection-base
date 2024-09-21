@@ -13,6 +13,9 @@ and configuring basic system utilities like gnupg, ssh etc
 
 - [`gnupg`](roles/gnupg/README.md): configures gnupg on the target system
 
+- [`lego`](roles/lego/README.md): runs [lego (LetsEncrypt Go]](https://github.com/go-acme/lego),
+  a ACME client written in go, using systemd (timers). Multi-instance capable.
+
 - [`mariadb`](roles/mariadb/README.md): runs [MariaDB Server](https://mariadb.org/), one of the world's most popular open source relational database
 
 - [`minio`](roles/minio/README.md): Deploy [min.io](https://min.io), an
@@ -23,6 +26,9 @@ and configuring basic system utilities like gnupg, ssh etc
 
 - [`restic`](roles/restic/README.md): Manage backups using restic
   and persist them to a configurable backend.
+
+- [`powerdns_tsig_key`](roles/powerdns_tsig_key/README.md): Simple ansible role
+  for generating TSIG keys in PowerDNS.
 
 ## License
 
