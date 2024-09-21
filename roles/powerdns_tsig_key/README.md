@@ -21,5 +21,5 @@ The usage example below assumes `powerdns` is running in a container named `powe
         powerdns_tsig_key_container_name: 'powerdns'
 ```
 
-> [!INFO]
+> [!NOTE]
 > Support for non-docker deployments is pending.
