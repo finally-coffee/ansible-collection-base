@@ -1,14 +1,22 @@
 namespace: finallycoffee
 name: base
-version: 0.1.1
+version: 0.1.2
 readme: README.md
 authors:
 - transcaffeine <transcaffeine@finally.coffee>
 description: Roles for base services which are common dependencies other services like databases
 dependencies:
-  "community.docker": "^1.10.0"
+  "community.docker": "^3.0.0"
 license_file: LICENSE.md
 build_ignore:
 - '*.tar.gz'
 repository: https://git.finally.coffee/finallycoffee/base
-issues: https://git.finally.coffee/finallycoffee/base/issues
+issues: https://codeberg.org/finallycoffee/ansible-collection-base/issues
+tags:
+  - docker
+  - elastic
+  - lego
+  - mariadb
+  - minio
+  - nginx
+  - restic
