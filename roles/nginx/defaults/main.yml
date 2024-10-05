@@ -4,6 +4,7 @@ nginx_flavour: alpine
 nginx_base_path: /opt/nginx
 nginx_config_file: "{{ nginx_base_path }}/nginx.conf"
 nginx_state: present
+nginx_deployment_method: docker
 
 nginx_container_name: nginx
 nginx_container_image_reference: >-

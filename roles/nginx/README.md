@@ -26,3 +26,8 @@ For exposing this server to the host and/or internet, the `nginx_container_ports
 from host to container), `nginx_container_networks` (docker networking) or `nginx_container_labels`
 (for label-based routing discovery like traefik) can be used. The options correspond to the arguments
 of the `community.docker.docker_container` module.
+
+## Deployment methods
+
+Set `nginx_deployment_method` to either `docker` or `podman` to use the respective ansible modules for
+creating and managing the container and its image. See all supported methods in `nginx_deployment_methods`.

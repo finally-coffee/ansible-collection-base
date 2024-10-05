@@ -2,3 +2,6 @@
 nginx_states:
   - present
   - absent
+nginx_deployment_methods:
+  - docker
+  - podman

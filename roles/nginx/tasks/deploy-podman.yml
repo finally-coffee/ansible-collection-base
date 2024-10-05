@@ -1,0 +1,27 @@
+---
+- name: Ensure container image '{{ nginx_container_image_reference }}' is {{ nginx_state }}
+  containers.podman.podman_image:
+    name: "{{ nginx_container_image_reference }}"
+    state: "{{ nginx_state }}"
+    pull: "{{ nginx_container_image_source == 'pull' }}"
+    force: >-2
+      {{ nginx_container_image_force_source
+        | default(nginx_container_image_tag | default(false, true)) }}
+  register: nginx_container_image_info
+  until: nginx_container_image_info is success
+  retries: 5
+  delay: 3
+
+- name: Ensure container '{{ nginx_container_name }}' is {{ nginx_container_state }}
+  containers.podman.podman_container:
+    name: "{{ nginx_container_name }}"
+    image: "{{ nginx_container_image_reference }}"
+    env: "{{ nginx_container_env | default(omit, true) }}"
+    user: "{{ nginx_container_user | default(omit, true) }}"
+    ports: "{{ nginx_container_ports | default(omit, true) }}"
+    labels: "{{ nginx_container_labels | default(omit, true) }}"
+    volumes: "{{ nginx_container_volumes | default(omit, true) }}"
+    etc_hosts: "{{ nginx_container_etc_hosts | default(omit, true) }}"
+    network: "{{ nginx_container_networks | default(omit, true) }}"
+    restart_policy: "{{ nginx_container_restart_policy }}"
+    state: "{{ nginx_container_state }}"
