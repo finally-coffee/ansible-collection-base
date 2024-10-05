@@ -1,10 +1,23 @@
 ---
+- name: Check if state is supported
+  ansible.builtin.fail:
+    msg: >-2
+      Unsupported state '{{ nginx_state }}'. Supported
+      states are {{ nginx_states | join(', ') }}.
+  when: nginx_state not in nginx_states
 
-- name: Ensure base path '{{ nginx_base_path }}' exists
+- name: Ensure nginx config file is {{ nginx_state }}
+  ansible.builtin.file:
+    path: "{{ nginx_config_file }}"
+    state: "{{ nginx_state }}"
+  when: nginx_state == 'absent'
+
+- name: Ensure base path '{{ nginx_base_path }}' is {{ nginx_state }}
   ansible.builtin.file:
     path: "{{ nginx_base_path }}"
-    state: directory
-    mode: 0755
+    mode: "0755"
+    state: >-2
+      {{ (nginx_state == 'present') | ternary('directory', 'absent') }}
 
 - name: Ensure nginx config file is templated
   ansible.builtin.copy:
@@ -13,15 +26,18 @@
     mode: 0640
   notify:
     - restart-nginx
+  when: nginx_state == 'present'
 
-- name: Ensure docker container image is present
+- name: Ensure docker container image '{{ nginx_container_image_reference }}' is {{ nginx_state }}
   community.docker.docker_image:
     name: "{{ nginx_container_image_reference }}"
-    state: present
-    source: pull
-    force_source: "{{ nginx_container_image_tag is defined and nginx_container_image_tag | string != '' }}"
+    state: "{{ nginx_state }}"
+    source: "{{ nginx_container_image_source }}"
+    force_source: >-2
+      {{ nginx_container_image_force_source
+        | default(nginx_container_image_tag | default(false, true)) }}
 
-- name: Ensure docker container '{{ nginx_container_name }}' is running
+- name: Ensure docker container '{{ nginx_container_name }}' is {{ nginx_container_state }}
   community.docker.docker_container:
     name: "{{ nginx_container_name }}"
     image: "{{ nginx_container_image_reference }}"
@@ -34,4 +50,4 @@
     networks: "{{ nginx_container_networks | default(omit, true) }}"
     purge_networks: "{{ nginx_container_purge_networks | default(omit, true) }}"
     restart_policy: "{{ nginx_container_restart_policy }}"
-    state: started
+    state: "{{ nginx_container_state }}"

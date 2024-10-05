@@ -1,0 +1,11 @@
+---
+allow_duplicates: true
+dependencies: []
+galaxy_info:
+  role_name: nginx
+  description: Deploy nginx, a webserver
+  galaxy_tags:
+    - nginx
+    - http
+    - webserver
+    - docker

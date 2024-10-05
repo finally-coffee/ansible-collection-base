@@ -1,0 +1,4 @@
+---
+nginx_states:
+  - present
+  - absent
