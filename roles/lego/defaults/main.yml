@@ -58,7 +58,7 @@ lego_systemd_timer_name: "lego-{{ lego_instance }}.timer"
 lego_systemd_timer_template: lego.timer.j2
 lego_systemd_timer_calendar: "*-*-* *:00/15:00"
 
-lego_architecture: "amd64"
+lego_architecture: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
 lego_os: "linux"
 lego_binary_allow_net_bind_service: false
 
