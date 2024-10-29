@@ -14,7 +14,6 @@ repository: https://git.finally.coffee/finallycoffee/base
 issues: https://codeberg.org/finallycoffee/ansible-collection-base/issues
 tags:
   - docker
-  - elastic
   - lego
   - minio
   - nginx

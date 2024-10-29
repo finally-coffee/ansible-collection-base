@@ -1,4 +1,9 @@
 ---
+- name: Warn about deprecation and move of role
+  ansible.builtin.debug:
+    msg: >-2
+      This ansible role has been moved to the finallycoffee.databases
+      ansible collection and will no longer be maintained here!
 
 - name: Ensure host directories are present
   file:
