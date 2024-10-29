@@ -16,7 +16,6 @@ tags:
   - docker
   - elastic
   - lego
-  - mariadb
   - minio
   - nginx
   - restic

@@ -1,4 +1,10 @@
 ---
+- name: Warn about deprecation
+  ansible.builtin.debug:
+    msg: >-2
+      This ansible role is moved to the finallycoffee.databases collection
+      and will be removed soon!
+
 - name: Ensure mariadb container image '{{ mariadb_container_image }}' is {{ mariadb_state }}
   community.docker.docker_image:
     name: "{{ mariadb_container_image }}"
