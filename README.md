@@ -5,11 +5,6 @@
 This ansible collection provides various roles for installing
 and configuring basic system utilities like gnupg, ssh etc
 
-- DEPRECATED: [`elasticsearch`](roles/elasticsearch/README.md): Deploy [elasticsearch](https://www.docker.elastic.co/r/elasticsearch/elasticsearch-oss),
-  a popular (distributed) search and analytics engine, mostly known by it's
-  letter "E" in the ELK-stack.
-  This role has been moved to the `finallycoffee.databases.elasticsearch` ansible collection.
-
 - [`git`](roles/git/README.md): configures git on the target system
 
 - [`gnupg`](roles/gnupg/README.md): configures gnupg on the target system
