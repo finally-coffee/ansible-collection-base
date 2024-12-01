@@ -12,10 +12,6 @@ and configuring basic system utilities like gnupg, ssh etc
 - [`lego`](roles/lego/README.md): runs [lego (LetsEncrypt Go)](https://github.com/go-acme/lego),
   a ACME client written in go, using systemd (timers). Multi-instance capable.
 
-- DEPRECATED: [`mariadb`](roles/mariadb/README.md): runs [MariaDB Server](https://mariadb.org/),
-  one of the world's most popular open source relational database.
-  Moved to `finallycoffee.databases.mariadb`.
-
 - [`minio`](roles/minio/README.md): Deploy [min.io](https://min.io), an
   s3-compatible object storage server, using docker containers.
 
