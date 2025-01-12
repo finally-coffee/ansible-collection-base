@@ -1,0 +1,8 @@
+---
+- name: Ensure users are configured
+  ansible.builtin.include_tasks:
+    file: "configure-user.yml"
+  loop: "{{ users }}"
+  loop_control:
+    loop_var: user
+    label: "{{ user.name }}"

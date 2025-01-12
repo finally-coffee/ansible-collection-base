@@ -1,0 +1,7 @@
+---
+- name: Configure user accounts
+  hosts: "{{ user_hosts | default('all', true) }}"
+  become: "{{ user_role_become | default(false, true) }}"
+  gather_facts: "{{ user_role_gather_facts | default(false, true) }}"
+  roles:
+    - role: finallycoffee.base.user
