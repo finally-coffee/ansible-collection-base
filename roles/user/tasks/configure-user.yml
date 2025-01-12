@@ -1,0 +1,32 @@
+---
+- name: Ensure user '{{ user.name }}' is {{ user.state }}
+  ansible.builtin.user:
+    name: "{{ user.name }}"
+    state: "{{ user.state }}"
+    system: "{{ user.system | default(false, true) }}"
+    home: "{{ user.home | default(omit, true) }}"
+    create_home: "{{ user.create_home | default(true, true) }}"
+    comment: "{{ user.comment | default(user.gecos | default(omit, true), true) }}"
+
+- name: Ensure SSH authorized keys for '{{ user.name }}' are {{ user.state }}
+  when:
+    - user.state == 'present'
+    - user.authorized_keys | default([]) | length > 0
+  block:
+    - name: Ensure .ssh directory for user '{{ user.name }}' exists
+      ansible.builtin.file:
+        path: "{{ user.home | default('/home/' + user.name) + '/.ssh' }}"
+        state: "directory"
+        owner: "{{ user.name }}"
+        group: "{{ user.name }}"
+        mode: "0700"
+    - name: Ensure key is up to date
+      ansible.posix.authorized_key:
+        user: "{{ user.name }}"
+        state: "{{ key.state | default('present', true) }}"
+        key: "{{ key.key }}"
+        comment: "{{ user.name }}-{{ key.comment }}"
+      loop: "{{ user.authorized_keys }}"
+      loop_control:
+        loop_var: key
+        label: "{{ user.name }}-{{ key.comment }}"
