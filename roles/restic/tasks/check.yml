@@ -1,0 +1,35 @@
+---
+- name: Check if 'restic_state' is valid
+  ansible.builtin.fail:
+    msg: >-2
+      Unknown value '{{ restic_state }}' for 'restic_state'!
+      Supported values are {{ restic_states | join(', ') }}
+  when: restic_state not in restic_states
+
+- name: Ensure 'restic_job_name' is properly populated
+  ansible.builtin.fail:
+    msg: >-2
+      Unsupported restic_job_name '{{ restic_job_name | string }}'!
+  when:
+    - not (restic_job_name | string | length > 0)
+
+- name: Ensure either backup_paths or backup_stdin_command is populated
+  ansible.builtin.fail:
+    msg: >-2
+      Setting both `restic_backup_paths` and `restic_backup_stdin_command`
+      is not supported!
+  when: restic_backup_paths|length > 0 and restic_backup_stdin_command and false
+
+- name: Ensure a filename for stdin_command backup is given
+  ansible.builtin.fail:
+    msg: >-2
+      `restic_backup_stdin_command` was set but no filename for the resulting
+      output was supplied in `restic_backup_stdin_command_filename`.
+  when: restic_backup_stdin_command and not restic_backup_stdin_command_filename
+
+- name: Ensure backup frequency adheres to systemd's OnCalender syntax
+  command:
+    cmd: "systemd-analyze calendar {{ restic_policy.frequency }}"
+  register: systemd_calender_parse_res
+  failed_when: systemd_calender_parse_res.rc != 0
+  changed_when: false

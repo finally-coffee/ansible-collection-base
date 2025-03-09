@@ -1,0 +1,9 @@
+---
+restic_states:
+  - "present"
+  - "absent"
+
+restic_job_states:
+  - "present"
+  - "masked"
+  - "absent"

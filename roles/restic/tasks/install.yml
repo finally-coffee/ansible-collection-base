@@ -1,0 +1,48 @@
+---
+- name: Ensure restic is installed
+  block:
+    - name: Ensure restic is installed via apt
+      apt:
+        package: restic
+        state: latest
+      when: ansible_os_family == 'Debian'
+    - name: Ensure restic is installed via dnf
+      dnf:
+        name: restic
+        state: latest
+      when: ansible_os_family == 'RedHat'
+    - name: Ensure restic is installed using the auto-detected package-manager
+      package:
+        name: "{{ restic_package_name }}"
+        state: present
+      when: ansible_os_family not in ['RedHat', 'Debian']
+
+- name: Ensure restic backup scripts are {{ restic_state }}
+  ansible.builtin.copy:
+    src: "{{ script.source }}"
+    dest: "{{ script.destination }}"
+    mode: "{{ script.mode }}"
+  loop:
+    - source: restic-backup.sh
+      destination: "{{ restic_systemd_service_exec_start }}"
+      mode: "0510"
+    - source: restic-snapshot-metrics.sh
+      destination: "{{ restic_script_generate_snapshot_metrics }}"
+      mode: "0510"
+  loop_control:
+    loop_var: script
+    label: "{{ script.source }}"
+
+- name: Ensure systemd service file for restic template unit is {{ restic_state }}
+  ansible.builtin.template:
+    dest: "/etc/systemd/system/restic@.service"
+    src: "restic@.service.j2"
+    owner: root
+    group: root
+    mode: "0640"
+  when: restic_state == 'present'
+  notify:
+    - reload-systemd
+    - trigger-restic
+
+

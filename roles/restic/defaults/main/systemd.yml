@@ -1,0 +1,11 @@
+---
+restic_systemd_job_name: ~
+restic_systemd_job_description: "Restic backup job for {{ restic_job_name }}"
+
+restic_systemd_working_directory: /tmp
+restic_systemd_install_wanted_by: "basic.target"
+restic_systemd_install_default_instance: "default"
+
+restic_systemd_start_job_on_unit_change: false
+restic_systemd_service_exec_start: "/opt/restic-backup.sh"
+

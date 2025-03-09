@@ -1,0 +1,3 @@
+{% for kv in restic_complete_environment | dict2items %}
+{{ kv.key }}={{ kv.value }}
+{% endfor %}
