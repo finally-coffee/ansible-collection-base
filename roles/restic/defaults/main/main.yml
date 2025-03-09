@@ -1,0 +1,16 @@
+---
+restic_user: root
+restic_user_create: false
+restic_create_user: "{{ restic_user_create }}"
+restic_user_create_home: false
+restic_user_system: false
+
+restic_state: present
+restic_version: "0.17.3"
+restic_job_name: default
+restic_job_state: "{{ restic_state }}"
+restic_job_directory: "/etc/restic"
+
+restic_package_name: restic
+restic_script_generate_snapshot_metrics: "/opt/restic-generate-snapshot-metrics.sh"
+restic_start_job_on_unit_change: true

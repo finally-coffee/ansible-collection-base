@@ -1,0 +1,30 @@
+---
+- name: Ensure systemd timer file for '{{ restic_job_name }}' is {{ restic_state }}'
+  ansible.builtin.template:
+    dest: "/etc/systemd/system/{{ restic_systemd_unit_naming_scheme }}.timer"
+    src: restic.timer.j2
+    owner: root
+    group: root
+    mode: "0640"
+  when: restic_state == 'present'
+  register: restic_systemd_timer_info
+  notify:
+    - reload-systemd
+
+- name: Ensure restic configuration for '{{ restic_job_name }}' is {{ restic_job_state }}
+  ansible.builtin.template:
+    src: "restic.conf.j2"
+    dest: "{{ restic_job_directory }}/{{ restic_job_name }}.conf"
+    mode: "0640"
+  when: restic_job_state in ['present', 'masked']
+  notify:
+    - trigger-restic
+
+- name: Ensure restic configuration for '{{ restic_job_name }}' is {{ restic_job_state }}
+  ansible.builtin.file:
+    path: "{{ restic_job_directory }}/{{ restic_job_name }}.conf"
+    state: "{{ restic_job_state }}"
+  when: restic_job_state not in ['present', 'masked']
+
+- name: Flush handlers to ensure systemd knows about '{{ restic_job_name }}'
+  meta: flush_handlers

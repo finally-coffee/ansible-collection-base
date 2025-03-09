@@ -1,13 +1,12 @@
 ---
-
 - name: Ensure system daemon is reloaded
   listen: reload-systemd
-  systemd:
+  ansible.builtin.systemd:
     daemon_reload: true
 
 - name: Ensure systemd service for '{{ restic_job_name }}' is started immediately
   listen: trigger-restic
-  systemd:
-    name: "{{ restic_systemd_unit_naming_scheme }}.service"
+  ansible.builtin.systemd:
+    name: "{{ restic_systemd_timer_naming_scheme }}"
     state: started
-  when: restic_start_job_on_unit_change
+  when: (not ansible_check_mode) and restic_start_job_on_unit_change

@@ -1,0 +1,15 @@
+[Unit]
+Description={{ restic_systemd_job_description }}
+
+[Service]
+Type=simple
+EnvironmentFile={{ restic_job_directory }}/%i.conf
+User={{ restic_user }}
+WorkingDirectory={{ restic_systemd_working_directory }}
+SyslogIdentifier={{ restic_systemd_syslog_identifier }}
+
+ExecStart={{ restic_systemd_service_exec_start }}
+
+[Install]
+WantedBy={{ restic_systemd_install_wanted_by }}
+DefaultInstance={{ restic_systemd_install_default_instance }}

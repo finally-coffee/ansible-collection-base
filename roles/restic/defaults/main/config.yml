@@ -1,5 +1,4 @@
 ---
-
 restic_repo_url: ~
 restic_repo_password: ~
 restic_s3_key_id: ~
@@ -8,6 +7,8 @@ restic_s3_access_key: ~
 restic_backup_paths: []
 restic_backup_stdin_command: ~
 restic_backup_stdin_command_filename: ~
+restic_backup_generate_metrics_command: >-2
+  {{ restic_script_generate_snapshot_metrics }}
 
 restic_policy_keep_all_within: 1d
 restic_policy_keep_hourly: 12
@@ -18,13 +19,16 @@ restic_policy_keep_yearly: 5
 restic_policy_backup_frequency: hourly
 
 restic_base_environment:
-  RESTIC_JOBNAME: "{{ restic_job_name | default('unknown') }}"
+  RESTIC_REPOSITORY: "{{ restic_repo_url }}"
+  RESTIC_PASSWORD: "{{ restic_repo_password }}"
+  RESTIC_JOBNAME: "{{ restic_job_name }}"
   RESTIC_FORGET_KEEP_WITHIN: "{{ restic_policy_keep_all_within }}"
   RESTIC_FORGET_KEEP_HOURLY: "{{ restic_policy_keep_hourly }}"
   RESTIC_FORGET_KEEP_DAILY: "{{ restic_policy_keep_daily }}"
   RESTIC_FORGET_KEEP_WEEKLY: "{{ restic_policy_keep_weekly }}"
   RESTIC_FORGET_KEEP_MONTHLY: "{{ restic_policy_keep_monthly }}"
   RESTIC_FORGET_KEEP_YEARLY: "{{ restic_policy_keep_yearly }}"
+  RESTIC_GENERATE_SNAPSHOT_METRICS_COMMAND: "{{ restic_backup_generate_metrics_command }}"
 
 restic_s3_environment:
   AWS_ACCESS_KEY_ID: "{{ restic_s3_key_id }}"
@@ -33,8 +37,8 @@ restic_s3_environment:
 restic_complete_environment: >-
   {{
     restic_base_environment
-    | combine((restic_s3_environment
-      if (restic_s3_key_id and restic_s3_access_key) else {}) | default({}))
+    | combine((restic_s3_environment | default({}))
+      if (restic_s3_key_id and restic_s3_access_key) else {})
     | combine(restic_environment | default({}))
   }}
 
@@ -46,15 +50,3 @@ restic_policy:
   monthly: "{{ restic_policy_keep_monthly }}"
   yearly: "{{ restic_policy_keep_yearly }}"
   frequency: "{{ restic_policy_backup_frequency }}"
-
-restic_user: root
-restic_create_user: false
-restic_start_job_on_unit_change: false
-
-restic_job_name: ~
-restic_job_description: "Restic backup job for {{ restic_job_name }}"
-restic_systemd_unit_naming_scheme: "restic.{{ restic_job_name }}"
-restic_systemd_working_directory: /tmp
-restic_systemd_syslog_identifier: "restic-{{ restic_job_name }}"
-
-restic_package_name: restic

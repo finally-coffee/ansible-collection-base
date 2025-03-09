@@ -1,0 +1,20 @@
+---
+restic_systemd_job_description: "Restic backup service"
+restic_systemd_unit_naming_scheme: "restic-{{ restic_job_name }}"
+restic_systemd_timer_naming_scheme: >-2
+  {{ restic_systemd_unit_naming_scheme }}.timer
+restic_systemd_timer_state_map:
+  present: "started"
+  absent: "stopped"
+  masked: "started"
+restic_systemd_timer_state: >-2
+  {{ restic_systemd_timer_state_map[restic_job_state] }}
+
+restic_systemd_syslog_identifier: "restic@%i"
+restic_systemd_working_directory: /tmp
+restic_systemd_install_wanted_by: "basic.target"
+restic_systemd_install_default_instance: "default"
+
+restic_systemd_start_job_on_unit_change: false
+restic_systemd_service_exec_start: "/opt/restic-backup.sh"
+
