@@ -3,7 +3,7 @@ set -euo pipefail
 
 LEGO_BINARY=$(/usr/bin/env which lego)
 
-if [[ -n "$LEGO_HTTP_FALLBACK_PORT" ]]; then
+if [[ -n "${LEGO_HTTP_FALLBACK_PORT:-}" ]]; then
   if ! nc_binary="$(type -p \"nc\")" || [[ -z $nc_binary ]]; then
     echo "nc not found (in PATH), exiting"
     exit 1
@@ -14,7 +14,7 @@ if [[ -n "$LEGO_HTTP_FALLBACK_PORT" ]]; then
   fi
 fi
 
-if [[ -n "$LEGO_PRE_RENEWAL_HOOK" ]]; then
+if [[ -n "${LEGO_PRE_RENEWAL_HOOK:-}" ]]; then
   $LEGO_PRE_RENEWAL_HOOK
 fi
 
@@ -30,6 +30,6 @@ fi
 find "$LEGO_CERT_STORE_PATH/certificates" -type f | xargs -I{} -n 1 chmod "$LEGO_CERT_MODE" "{}"
 find "$LEGO_CERT_STORE_PATH/certificates" -type f | xargs -I{} -n 1 chown "${LEGO_CERT_USER}:${LEGO_CERT_GROUP}" "{}"
 
-if [[ -n "$LEGO_POST_RENEWAL_HOOK" ]]; then
+if [[ -n "${LEGO_POST_RENEWAL_HOOK:-}" ]]; then
   $LEGO_POST_RENEWAL_HOOK
 fi
