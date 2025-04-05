@@ -1,17 +1,7 @@
 ---
-
-minio_user: ~
-minio_data_path: /opt/minio
-
-minio_create_user: false
-minio_manage_host_filesystem: false
-
-minio_root_username: root
-minio_root_password: ~
-
 minio_container_name: minio
-minio_container_image_name: docker.io/minio/minio
-minio_container_image_tag: latest
+minio_container_image_name: "docker.io/minio/minio"
+minio_container_image_tag: "RELEASE.2025-04-03T14-56-28Z"
 minio_container_image: "{{ minio_container_image_name }}:{{ minio_container_image_tag }}"
 minio_container_networks: []
 minio_container_ports: []
@@ -34,6 +24,8 @@ minio_container_command:
   - ":{{ minio_container_listen_port_console }}"
 minio_container_restart_policy: "unless-stopped"
 minio_container_image_force_source: "{{ (minio_container_image_tag == 'latest')|bool }}"
+minio_container_state: >-2
+  {{ (minio_state == 'present') | ternary('started', 'absent') }}
 
 minio_container_listen_port_api: 9000
 minio_container_listen_port_console: 8900

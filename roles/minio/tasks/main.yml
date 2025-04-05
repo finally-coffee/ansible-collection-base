@@ -1,37 +1,25 @@
 ---
+- name: Ensure 'minio_state' is valid
+  ansible.builtin.fail:
+    msg: >-
+      Unsupported state '{{ minio_state }}'!
+      Supported states are {{ minio_states | join(', ') }}.
+  when: minio_state not in minio_states
 
-- name: Ensure minio run user is present
-  user:
+- name: Ensure 'minio_deployment_method' is valid
+  ansible.builtin.fail:
+    msg: >-
+      Unsupported state '{{ minio_deployment_method }}'!
+      Supported states are {{ minio_deployment_methods | join(', ') }}.
+  when: minio_deployment_method not in minio_deployment_methods
+
+- name: Ensure minio run user is {{ minio_state }}
+  ansible.builtin.user:
     name: "{{ minio_user }}"
-    state: present
-    system: yes
+    state: "{{ minio_state }}"
+    system: true
   when: minio_create_user
 
-- name: Ensure filesystem mounts ({{ minio_data_path }}) for container volumes are present
-  file:
-    path: "{{ minio_data_path }}"
-    state: directory
-    user: "{{ minio_user|default(omit, True) }}"
-    group: "{{ minio_user|default(omit, True) }}"
-  when: minio_manage_host_filesystem
-
-- name: Ensure container image for minio is present
-  community.docker.docker_image:
-    name: "{{ minio_container_image }}"
-    state: present
-    source: pull
-    force_source: "{{ minio_container_image_force_source }}"
-
-- name: Ensure container {{ minio_container_name }} is running
-  docker_container:
-    name: "{{ minio_container_name }}"
-    image: "{{ minio_container_image }}"
-    volumes: "{{ minio_container_volumes }}"
-    env: "{{ minio_container_env }}"
-    labels: "{{ minio_container_labels }}"
-    networks: "{{ minio_container_networks }}"
-    ports: "{{ minio_container_ports }}"
-    user: "{{ minio_user|default(omit, True) }}"
-    command: "{{ minio_container_command }}"
-    restart_policy: "{{ minio_container_restart_policy }}"
-    state: started
+- name: Deploy minio using {{ minio_deployment_method }}
+  ansible.builtin.include_tasks:
+    file: "deploy-{{ minio_deployment_method }}.yml"

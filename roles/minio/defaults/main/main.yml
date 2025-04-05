@@ -1,0 +1,12 @@
+---
+minio_user: ~
+minio_data_path: /opt/minio
+
+minio_create_user: false
+minio_manage_host_filesystem: false
+
+minio_root_username: root
+minio_root_password: ~
+
+minio_state: present
+minio_deployment_method: docker
