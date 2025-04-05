@@ -6,9 +6,9 @@ if [[ -n ${RESTIC_PRE_BACKUP_HOOK-} ]]; then
     /bin/bash -c "$RESTIC_PRE_BACKUP_HOOK"
 fi
 
-echo "List existing snapshots or initialize repository"
-restic snapshots || restic init
-sleep 2;
+echo "List existing snapshots or attempt to initialize/unlock repository"
+restic snapshots || restic init || restic unlock
+sleep 1;
 
 echo "Attempting to remove lock if present"
 restic unlock
