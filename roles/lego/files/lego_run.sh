@@ -4,7 +4,7 @@ set -euo pipefail
 LEGO_BINARY=$(/usr/bin/env which lego)
 
 if [[ -n "${LEGO_HTTP_FALLBACK_PORT:-}" ]]; then
-  if ! nc_binary="$(type -p \"nc\")" || [[ -z $nc_binary ]]; then
+  if ! nc_binary="$(type -p 'nc')" || [[ -z $nc_binary ]]; then
     echo "nc not found (in PATH), exiting"
     exit 1
   fi
