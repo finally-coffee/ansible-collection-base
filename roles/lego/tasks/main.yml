@@ -25,35 +25,44 @@
       - "{{ lego_cert_group }}"
     append: true
 
-- name: Ensure lego is installed
-  block:
-    - name: Check if lego is present
-      ansible.builtin.command:
-        cmd: which lego
-      changed_when: false
-      failed_when: false
-      register: lego_binary_info
+- name: Check if lego is present
+  ansible.builtin.command:
+    cmd: which lego
+  changed_when: false
+  failed_when: false
+  register: lego_binary_info
+  check_mode: false
 
+- name: Check which version of lego is present
+  ansible.builtin.command:
+    cmd: "lego --version"
+  changed_when: false
+  failed_when: false
+  register: lego_binary_version_info
+  when: lego_binary_info.rc == 0
+  check_mode: false
+
+- name: Ensure lego is installed
+  when: (lego_binary_info.rc != 0) or (lego_version not in lego_binary_version_info.stdout)
+  block:
     - name: Download lego from source
       ansible.builtin.get_url:
         url: "{{ lego_release_archive_url }}"
         url_username: "{{ lego_release_archive_url_username | default(omit) }}"
         url_password: "{{ lego_release_archive_url_password | default(omit) }}"
         dest: "{{ lego_release_archive_file_path }}"
-      when: lego_binary_info.rc != 0
 
     - name: Create folder to uncompress into
       ansible.builtin.file:
         dest: "{{ lego_release_archive_path }}"
         state: directory
-      when: lego_binary_info.rc != 0
 
     - name: Uncompress lego source archive
       ansible.builtin.unarchive:
         src: "{{ lego_release_archive_file_path }}"
         dest: "{{ lego_release_archive_path }}"
         remote_src: true
-      when: lego_binary_info.rc != 0
+      ignore_errors: "{{ ansible_check_mode }}"
 
     - name: Ensure lego binary is present in PATH
       ansible.builtin.copy:
@@ -61,14 +70,7 @@
         dest: "/usr/local/bin/lego"
         mode: "u+rwx,g+rx,o+rx"
         remote_src: true
-      when: lego_binary_info.rc != 0
-
-    - name: Ensure lego is allowed to bind to ports < 1024
-      community.general.capabilities:
-        path: "/usr/local/bin/lego"
-        capability: "cap_net_bind_service+ep"
-        state: present
-      when: lego_binary_allow_net_bind_service
+      ignore_errors: "{{ ansible_check_mode }}"
 
     - name: Ensure intermediate data is gone
       ansible.builtin.file:
@@ -77,7 +79,13 @@
       loop:
         - "{{ lego_release_archive_path }}"
         - "{{ lego_release_archive_file_path }}"
-      when: lego_binary_info.rc != 0
+
+    - name: Ensure lego is allowed to bind to ports < 1024
+      community.general.capabilities:
+        path: "/usr/local/bin/lego"
+        capability: "cap_net_bind_service+ep"
+        state: present
+      when: lego_binary_allow_net_bind_service
 
 - name: Ensure lego base path exists
   ansible.builtin.file:
