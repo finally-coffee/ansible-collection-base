@@ -1,0 +1,6 @@
+---
+- name: Install and configure docker daemon
+  hosts: "{{ docker_hosts | default('docker', true) }}"
+  become: "{{ docker_become | default(false, true) }}"
+  roles:
+    - role: finallycoffee.base.docker

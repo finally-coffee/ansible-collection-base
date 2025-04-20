@@ -18,3 +18,4 @@ tags:
   - minio
   - nginx
   - restic
+  - docker

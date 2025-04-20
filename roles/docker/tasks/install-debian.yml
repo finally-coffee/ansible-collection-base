@@ -1,0 +1,30 @@
+---
+- name: Ensure legacy docker packages are removed
+  ansible.builtin.apt:
+    name: "{{ docker_apt_legacy_packages }}"
+    state: absent
+  when: docker_remove_legacy_packages
+
+- name: Add apt key for docker repository
+  ansible.builtin.apt_key:
+    id: "{{ docker_apt_key_id }}"
+    url: "{{ docker_apt_key_url }}"
+    state: "{{ docker_state }}"
+
+- name: Add apt repository for docker
+  ansible.builtin.apt_repository:
+    repo: "{{ docker_apt_repository }}"
+    state: "{{ docker_state }}"
+  register: docker_apt_repository_info
+
+- name: Update apt cache if repository was newly added
+  ansible.builtin.apt:
+    update_cache: true
+  when:
+    - docker_state == 'present'
+    - docker_apt_repository_info.changed
+
+- name: Install apt packages for docker
+  ansible.builtin.apt:
+    name: "{{ docker_apt_packages }}"
+    state: "{{ docker_state }}"

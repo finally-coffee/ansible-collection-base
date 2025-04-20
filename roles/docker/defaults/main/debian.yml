@@ -1,0 +1,31 @@
+---
+docker_apt_key_url: "https://download.docker.com/linux/debian/gpg"
+docker_apt_key_id: "9DC858229FC7DD38854AE2D88D81803C0EBFCD88"
+
+docker_apt_arch: amd64
+docker_apt_release_channel: stable
+docker_apt_repository_url: "https://download.docker.com/linux/debian"
+docker_apt_repository: >-2
+  deb [arch={{ docker_apt_arch }}] {{ docker_apt_repository_url }} {{ ansible_distribution_release }} {{ docker_apt_release_channel }}
+docker_apt_cli_package: "docker-ce-cli"
+docker_apt_plugin_buildx_package: "docker-buildx-plugin"
+docker_apt_plugin_compose_package: "docker-compose-plugin"
+docker_apt_base_packages:
+  - "docker-ce"
+  - "docker-ce-cli"
+  - "containerd.io"
+docker_apt_packages: >-2
+  {{
+    docker_apt_base_packages
+    + (docker_plugin_buildx_enable | default(false)
+      | ternary([ docker_apt_plugin_buildx_package ], []))
+    + (docker_plugin_compose_enable | default(false)
+      | ternary([ docker_apt_plugin_compose_package ], []))
+  }}
+docker_apt_legacy_packages:
+  - "docker.io"
+  - "docker-compose"
+  - "docker-doc"
+  - "podman-docker"
+  - "containerd"
+  - "runc"
