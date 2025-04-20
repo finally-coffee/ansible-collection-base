@@ -1,0 +1,7 @@
+---
+docker_state: "present"
+docker_daemon_config: ~
+docker_daemon_config_file: "/etc/docker/daemon.json"
+docker_daemon_config_file_mode: "0644"
+docker_daemon_config_owner: root
+docker_daemon_config_group: "{{ docker_daemon_config_owner }}"

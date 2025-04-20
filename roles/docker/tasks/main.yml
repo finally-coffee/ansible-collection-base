@@ -1,0 +1,29 @@
+---
+- name: Check if target OS is supported
+  ansible.builtin.fail:
+    msg: >-2
+      OS Family '{{ docker_os_family }}' is not supported!
+  when: docker_os_family not in docker_supported_os_families
+  vars:
+    docker_os_family: "{{ ansible_os_family | lower }}"
+
+- name: Ensure docker is {{ docker_state }} on {{ ansible_os_family }}-family
+  ansible.builtin.include_tasks:
+    file: "install-{{ ansible_os_family | lower }}.yml"
+
+- name: Configure docker daemon
+  ansible.builtin.include_tasks:
+    file: "configure.yml"
+  when: docker_state == 'present'
+
+- name: Ensure docker daemon is {{ docker_systemd_service_enabled | ternary('enabled', 'disabled') }}
+  ansible.builtin.systemd_service:
+    name: "{{ docker_systemd_service_name }}"
+    enabled: "{{ docker_systemd_service_enabled }}"
+  when: ansible_facts['service_mgr'] == 'systemd'
+
+- name: Ensure docker daemon is {{ docker_systemd_service_state }}
+  ansible.builtin.systemd_service:
+    name: "{{ docker_systemd_service_name }}"
+    state: "{{ docker_systemd_service_state }}"
+  when: ansible_facts['service_mgr'] == 'systemd'
