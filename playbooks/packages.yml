@@ -13,3 +13,12 @@
         loop_var: package
         label: "{{ package.name }}"
       when: ansible_facts['pkg_mgr'] == 'apt'
+    - name: Install packages (dnf)
+      ansible.builtin.dnf:
+        name: "{{ package.name }}"
+        state: "{{ package.state | default('present') }}"
+      loop: "{{ system_packages | default([], true) }}"
+      loop_control:
+        loop_var: package
+        label: "{{ package.name }}"
+      when: ansible_facts['pkg_mgr'] in ['dnf', 'dnf5', 'yum']
