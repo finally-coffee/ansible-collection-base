@@ -9,7 +9,7 @@
 
 - name: Configure docker daemon using '{{ docker_daemon_config_file }}'
   ansible.builtin.copy:
-    content: "{{ docker_daemon_config | to_json }}"
+    content: "{{ docker_daemon_config | to_nice_json }}"
     dest: "{{ docker_daemon_config_file }}"
     mode: "{{ docker_daemon_config_file_mode }}"
     owner: "{{ docker_daemon_config_owner }}"

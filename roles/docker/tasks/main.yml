@@ -2,14 +2,14 @@
 - name: Check if target OS is supported
   ansible.builtin.fail:
     msg: >-2
-      OS Family '{{ docker_os_family }}' is not supported!
-  when: docker_os_family not in docker_supported_os_families
+      OS '{{ docker_os }}' is not supported!
+  when: docker_os not in docker_supported_oses
   vars:
-    docker_os_family: "{{ ansible_os_family | lower }}"
+    docker_os: "{{ ansible_distribution | lower }}"
 
-- name: Ensure docker is {{ docker_state }} on {{ ansible_os_family }}-family
+- name: Ensure docker is {{ docker_state }} on {{ ansible_distribution }}
   ansible.builtin.include_tasks:
-    file: "install-{{ ansible_os_family | lower }}.yml"
+    file: "install-{{ ansible_distribution | lower }}.yml"
 
 - name: Configure docker daemon
   ansible.builtin.include_tasks:

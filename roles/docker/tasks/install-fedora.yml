@@ -1,0 +1,21 @@
+---
+- name: Ensure legacy docker packages are removed
+  ansible.builtin.dnf:
+    name: "{{ docker_fedora_legacy_packages }}"
+    state: "removed"
+  when: docker_remove_legacy_packages
+
+- name: Ensure dnf repository for docker is {{ docker_state }}
+  ansible.builtin.yum_repository:
+    name: "{{ docker_fedora_repo_name }}"
+    description: "{{ docker_fedora_repo_description }}"
+    baseurl: "{{ docker_fedora_repo_url }}"
+    validate_certs: "{{ docker_fedora_repo_validate_certs }}" 
+    gpgkey: "{{ docker_fedora_repo_gpg_key }}"
+    gpgcheck: "{{ docker_fedora_repo_gpg_check }}"
+    state: "{{ docker_state }}"
+
+- name: Install dnf packages for docker
+  ansible.builtin.dnf:
+    name: "{{ docker_fedora_packages }}"
+    state: "{{ docker_state }}"
