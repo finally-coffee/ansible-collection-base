@@ -1,0 +1,34 @@
+---
+docker_rhel_repo_name: "docker-ce-stable"
+docker_rhel_repo_description: "Docker CE Stable - $basearch"
+docker_rhel_repo_url: "https://download.docker.com/linux/rhel/$releasever/$basearch/stable"
+docker_rhel_repo_validate_certs: true
+docker_rhel_repo_gpg_check: true
+docker_rhel_repo_gpg_key: "https://download.docker.com/linux/rhel/gpg"
+
+docker_rhel_cli_package: "docker-ce-cli"
+docker_rhel_plugin_buildx_package: "docker-buildx-plugin"
+docker_rhel_plugin_compose_package: "docker-compose-plugin"
+docker_rhel_base_packages:
+  - "docker-ce"
+  - "docker-ce-cli"
+  - "containerd.io"
+docker_rhel_packages: >-2
+  {{
+    docker_fedora_base_packages
+    + (docker_plugin_buildx_enable | default(false)
+      | ternary([ docker_rhel_plugin_buildx_package ], []))
+    + (docker_plugin_compose_enable | default(false)
+      | ternary([ docker_rhel_plugin_compose_package ], []))
+  }}
+docker_rhel_legacy_packages:
+  - "docker"
+  - "docker-client"
+  - "docker-client-latest"
+  - "docker-common"
+  - "docker-latest"
+  - "docker-latest-logrotate"
+  - "docker-logrotate"
+  - "docker-engine"
+  - "podman"
+  - "runc"
