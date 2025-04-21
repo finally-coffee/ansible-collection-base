@@ -4,7 +4,7 @@
   become: "{{ target_host_become | default(true, false) }}"
   gather_facts: false
   pre_tasks:
-    - name: Gather information about the target system
+    - name: Gather information about the target system id
       ansible.builtin.raw: "cat /etc/os-release | grep '^ID=' | cut -d '=' -f2"
       register: target_host_os_info
       check_mode: false
@@ -13,6 +13,16 @@
       ansible.builtin.set_fact:
         target_host_system_id: "{{ target_host_os_info.stdout_lines | first | trim }}"
       delegate_to: localhost
+    - name: Gather information about the target system version
+      ansible.builtin.raw: "cat /etc/os-release | grep '^VERSION_ID=' | cut -d '=' -f2"
+      register: target_host_os_info_version
+      check_mode: false
+      changed_when: false
+    - name: Set /etc/os-release system version id
+      ansible.builtin.set_fact:
+        target_host_system_version_id: "{{ target_host_os_info_version.stdout_lines | first | trim }}"
+      delegate_to: localhost
+
   tasks:
     - name: Ensure apt bootstrap packages are installed
       ansible.builtin.raw: "apt install {{ apt_bootstrap_packages | join(' ') }}"
@@ -21,6 +31,22 @@
       changed_when:
         - "'0 upgraded' not in target_host_apt_info.stdout_lines | last"
         - "'0 newly installed' not in target_host_apt_info.stdout_lines | last"
+    - name: Ensure dnf < 4 bootstrap packages are installed
+      ansible.builtin.raw: "dnf install --assumeyes {{ dnf4_bootstrap_packages | join(' ') }}"
+      register: target_host_dnf_info
+      when:
+        - target_host_system_id in targets_using_dnf4.keys()
+        - target_host_system_version_id | int < targets_using_dnf4[target_host_system_id]
+      changed_when:
+        - "(target_host_dnf_info.stdout_lines | last) != 'Nothing to do.'"
+    - name: Ensure dnf5 bootstrap packages are installed
+      ansible.builtin.raw: "dnf install --assumeyes {{ dnf5_bootstrap_packages | join(' ') }}"
+      register: target_host_dnf_info
+      when:
+        - target_host_system_id in targets_using_dnf5.keys()
+        - target_host_system_version_id | int >= targets_using_dnf5[target_host_system_id]
+      changed_when:
+        - "(target_host_dnf_info.stdout_lines | last) != 'Nothing to do.'"
     - name: Sort hosts into os-specific groups
       ansible.builtin.group_by:
         key: >-2
@@ -38,3 +64,15 @@
     apt_bootstrap_packages:
       - python3
       - python3-apt
+    # default package manager is dnf5 since fedora 41
+    # https://fedoraproject.org/wiki/Changes/SwitchToDnf5#Current_status
+    targets_using_dnf4:
+      fedora: 41
+    targets_using_dnf5:
+      fedora: 41
+    dnf4_bootstrap_packages:
+      - python3
+      - python3-dnf
+      - python3-libdnf
+    dnf5_bootstrap_packages:
+      - python3-libdnf5
