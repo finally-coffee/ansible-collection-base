@@ -1,0 +1,15 @@
+---
+- name: Install system packages on the remote
+  hosts: "{{ target_hosts | default('all', true) }}"
+  become: "{{ target_host_become | default(true, true) }}"
+  gather_facts: "{{ target_host_gather_facts | default(true, true) }}"
+  tasks:
+    - name: Install packages (apt)
+      ansible.builtin.apt:
+        package: "{{ package.name }}"
+        state: "{{ package.state | default('present') }}"
+      loop: "{{ system_packages | default([], true) }}"
+      loop_control:
+        loop_var: package
+        label: "{{ package.name }}"
+      when: ansible_facts['pkg_mgr'] == 'apt'

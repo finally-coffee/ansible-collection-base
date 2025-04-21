@@ -1,0 +1,40 @@
+---
+- name: Bootstrap everything needed for an ansible connection
+  hosts: "{{ target_hosts | default('all', true) }}"
+  become: "{{ target_host_become | default(true, false) }}"
+  gather_facts: false
+  pre_tasks:
+    - name: Gather information about the target system
+      ansible.builtin.raw: "cat /etc/os-release | grep '^ID=' | cut -d '=' -f2"
+      register: target_host_os_info
+      check_mode: false
+      changed_when: false
+    - name: Set /etc/os-release system id
+      ansible.builtin.set_fact:
+        target_host_system_id: "{{ target_host_os_info.stdout_lines | first | trim }}"
+      delegate_to: localhost
+  tasks:
+    - name: Ensure apt bootstrap packages are installed
+      ansible.builtin.raw: "apt install {{ apt_bootstrap_packages | join(' ') }}"
+      register: target_host_apt_info
+      when: target_host_system_id in targets_using_apt
+      changed_when:
+        - "'0 upgraded' not in target_host_apt_info.stdout_lines | last"
+        - "'0 newly installed' not in target_host_apt_info.stdout_lines | last"
+    - name: Sort hosts into os-specific groups
+      ansible.builtin.group_by:
+        key: >-2
+          {{ (os_group_prefix
+             | default(false, true)
+             | ternary(os_group_prefix | default('') + (os_group_seperator | default('_')), ''))
+             + target_host_system_id }}
+      when: target_hosts_sort_into_system_ids | default(false, true)
+      changed_when: false
+      delegate_to: localhost
+  vars:
+    targets_using_apt:
+      - debian
+      - ubuntu
+    apt_bootstrap_packages:
+      - python3
+      - python3-apt
