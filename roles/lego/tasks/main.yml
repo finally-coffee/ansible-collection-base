@@ -107,6 +107,7 @@
       {{ entry.key }}={{ entry.value }}
       {% endfor %}
     dest: "{{ lego_base_path }}/{{ lego_instance }}.conf"
+  register: lego_env_file_info
 
 - name: Ensure timer unit is templated
   ansible.builtin.template:
@@ -120,6 +121,7 @@
     src: "lego_run.sh"
     dest: "{{ lego_base_path }}/run.sh"
     mode: "0755"
+  register: lego_handler_script_info
 
 - name: Ensure per-instance base path is created
   ansible.builtin.file:
@@ -159,7 +161,18 @@
     name: "{{ lego_systemd_timer_name }}"
     state: "started"
 
+- name: Check if certificates are present
+  ansible.builtin.find:
+    path: "{{ lego_instance_path }}/certificates"
+    recurse: false
+    file_type: "file"
+  register: lego_certificate_info
+
 - name: Ensure systemd service is started once to obtain the certificate
   ansible.builtin.systemd_service:
     name: "{{ lego_systemd_service_name }}"
     state: "started"
+  when: >-2
+    lego_handler_script_info.changed
+    or lego_env_file_info.changed
+    or lego_certificate_info.files | default([]) | length == 0
