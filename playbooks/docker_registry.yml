@@ -1,0 +1,16 @@
+---
+- name: Manage docker registry credentials
+  hosts: "{{ docker_hosts | default('docker', true) }}"
+  become: "{{ docker_become | default(false) }}"
+  gather_facts: "{{ docker_registry_gather_facts | default(true) }}"
+  tasks:
+    - name: Manage docker registry credentials
+      community.docker.docker_login:
+        registry_url: "{{ docker_registry.registry }}"
+        username: "{{ docker_registry.username | default(omit) }}"
+        password: "{{ docker_registry.password | default(omit) }}"
+        state: "{{ docker_registry.state | default('present') }}"
+      loop: "{{ docker_registries | default([], true) }}"
+      loop_control:
+        loop_var: "docker_registry"
+        label: "{{ docker_registry.username}}@{{ docker_registry.registry }}"
