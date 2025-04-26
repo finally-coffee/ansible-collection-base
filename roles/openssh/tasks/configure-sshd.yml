@@ -1,0 +1,28 @@
+---
+- name: Configure sshd
+  ansible.builtin.lineinfile:
+    path: "{{ openssh_sshd_config_file }}"
+    regexp: "{{ openssh_sshd_config_regexp }}"
+    line: "{{ openssh_sshd_config_line }}"
+    firstmatch: true
+    state: present
+    validate: "sshd -Tf %s"
+  loop: "{{ openssh_sshd_merged_config | dict2items }}"
+  loop_control:
+    loop_var: "tuple"
+    label: "{{ tuple.key }}"
+  notify:
+    - openssh_sshd_reload
+  vars:
+    openssh_sshd_config_regexp: "^\\s*#?\\s*{{ tuple.key }}"
+    openssh_sshd_config_line: >-2
+      {{ openssh_sshd_config_line_commented }}{{ tuple.key }} {{ openssh_sshd_config_value }}
+    openssh_sshd_config_value_is_none: "{{ tuple.value is none }}"
+    openssh_sshd_config_line_commented: >-2
+      {{ openssh_sshd_config_value_is_none | ternary('#', '') }}
+    openssh_sshd_config_value: >-2
+      {{ (tuple.value is boolean) | ternary(
+           tuple.value | ternary('yes', 'no'),
+           tuple.value
+         )
+      }}

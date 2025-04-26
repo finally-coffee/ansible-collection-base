@@ -1,0 +1,15 @@
+---
+- name: Ensure 'openssh_state' is valid
+  ansible.builtin.fail:
+    msg: >-2
+      Invalid value '{{ openssh_state }}' for 'openssh_state'.
+      Valid values are {{ openssh_states | join(', ') }}!
+  when: openssh_state not in openssh_states
+
+- name: Ensure openssh is {{ openssh_state }}
+  ansible.builtin.include_tasks:
+    file: "install.yml"
+
+- name: Ensure sshd is configured
+  ansible.builtin.include_tasks:
+    file: "configure-sshd.yml"

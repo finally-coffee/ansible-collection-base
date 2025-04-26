@@ -1,0 +1,33 @@
+---
+openssh_sshd_enable: true
+openssh_sshd_config_pubkey_authentication: true
+openssh_sshd_config_password_authentication: false
+openssh_sshd_config_challenge_response_authentication: false
+openssh_sshd_config_permit_root_login: false
+
+# Limits
+openssh_sshd_config_max_sessions: ~
+openssh_sshd_config_max_startups: ~
+
+# Hardening
+openssh_sshd_config_protocol: 2
+openssh_sshd_config_x11_forwarding: false
+openssh_sshd_config_allow_agent_forwarding: false
+openssh_sshd_config_allow_tcp_forwarding: false
+
+openssh_sshd_default_config:
+  PubkeyAuthentication: "{{ openssh_sshd_config_pubkey_authentication }}"
+  PasswordAuthentication: "{{ openssh_sshd_config_password_authentication }}"
+  ChallengeResponseAuthentication: >-2
+    {{ openssh_sshd_config_challenge_response_authentication }}
+  PermitRootLogin: "{{ openssh_sshd_config_permit_root_login }}"
+  MaxSessions: "{{ openssh_sshd_config_max_sessions }}"
+  MaxStartups: "{{ openssh_sshd_config_max_startups }}"
+  Protocol: "{{ openssh_sshd_config_protocol }}"
+  X11Forwarding: "{{ openssh_sshd_config_x11_forwarding }}"
+  AllowAgentForwarding: "{{ openssh_sshd_config_allow_agent_forwarding }}"
+  AllowTcpForwarding: "{{ openssh_sshd_config_allow_tcp_forwarding }}"
+
+openssh_sshd_merged_config: >-2
+  {{ openssh_sshd_default_config | default({}, true)
+     | combine(openssh_sshd_config | default({}, true)) }}

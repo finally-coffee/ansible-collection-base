@@ -1,0 +1,7 @@
+---
+- name: Ensure openssh is installed and configured
+  hosts: "{{ openssh_target | default('openssh') }}"
+  become: "{{ openssh_become | default(true) }}"
+  gather_facts: "{{ openssh_gather_facts | default(true) }}"
+  roles:
+    - role: finallycoffee.base.openssh

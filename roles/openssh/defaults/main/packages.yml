@@ -1,0 +1,8 @@
+---
+openssh_packages:
+  fedora: "{{ openssh_fedora_packages }}"
+  debian: "{{ openssh_debian_packages }}"
+openssh_fedora_packages:
+  - "openssh-server"
+openssh_debian_packages:
+  - "openssh-server"
