@@ -1,0 +1,10 @@
+---
+- name: Ensure hostname is managed
+  hosts: "{{ hostname_targets | default('hostname_managed') }}"
+  become: "{{ hostname_target_become | default(true) }}"
+  gather_facts: false
+  tasks:
+    - name: Ensure hostname is up to date
+      ansible.builtin.hostname:
+        name: "{{ hostname | default(inventory_hostname, true) }}"
+        use: "{{ hostname_strategy | default(omit, true) }}"
