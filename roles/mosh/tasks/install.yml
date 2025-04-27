@@ -1,0 +1,30 @@
+---
+- name: Ensure mosh is {{ mosh_state }} (dnf)
+  ansible.builtin.dnf:
+    name: "{{ mosh_packages[_key] }}"
+    state: "{{ mosh_state }}"
+  when:
+    - ansible_facts['pkg_mgr'] in ['dnf', 'dnf5']
+    - _key in mosh_packages.keys()
+  vars:
+    _key: "{{ ansible_distribution | lower }}"
+
+- name: Ensure mosh is {{ mosh_state }} (apt)
+  ansible.builtin.apt:
+    package: "{{ mosh_packages[_key] }}"
+    state: "{{ mosh_state }}"
+  when:
+    - ansible_facts['pkg_mgr'] in ['apt']
+    - _key in mosh_packages.keys()
+  vars:
+    _key: "{{ ansible_distribution | lower }}"
+
+- name: Ensure mosh is {{ mosh_state }} (pacman)
+  community.general.pacman:
+    name: "{{ mosh_packages[_key] }}"
+    state: "{{ mosh_state }}"
+  when:
+    - ansible_facts['pkg_mgr'] in ['pacman']
+    - _key in mosh_packages.keys()
+  vars:
+    _key: "{{ ansible_distribution | lower }}"

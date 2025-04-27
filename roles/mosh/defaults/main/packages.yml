@@ -1,0 +1,15 @@
+---
+mosh_debian_packages:
+  - "mosh"
+  - "openssh-server"
+mosh_fedora_packages:
+  - "mosh"
+  - "openssh-server"
+mosh_archlinux_packages:
+  - "mosh"
+  - "openssh"
+
+mosh_packages:
+  debian: "{{ mosh_debian_packages }}"
+  fedora: "{{ mosh_fedora_packages }}"
+  archlinux: "{{ mosh_archlinux_packages }}"

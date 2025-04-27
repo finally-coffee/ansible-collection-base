@@ -1,0 +1,6 @@
+---
+- name: Manage and configure mosh
+  hosts: "{{ mosh_hosts | default('mosh', true) }}"
+  become: "{{ mosh_become | default(true) }}"
+  roles:
+    - role: finallycoffee.base.mosh

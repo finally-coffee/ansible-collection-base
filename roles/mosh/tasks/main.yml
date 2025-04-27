@@ -1,0 +1,11 @@
+---
+- name: Ensure 'mosh_state' is valid
+  ansible.builtin.fail:
+    msg: >-2
+      Invalid state '{{ mosh_state }}' for 'mosh_state'!
+      Allowed states are {{ mosh_states | join(', ') }}.
+  when: mosh_state not in mosh_states
+
+- name: Ensure mosh is {{ mosh_state }}
+  ansible.builtin.include_tasks:
+    file: "install.yml"

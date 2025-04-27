@@ -1,0 +1,4 @@
+---
+mosh_states:
+  - "present"
+  - "absent"
