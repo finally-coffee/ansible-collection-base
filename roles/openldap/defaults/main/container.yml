@@ -1,0 +1,61 @@
+---
+openldap_container_name: "openldap"
+openldap_container_image_registry: docker.finally.coffee
+openldap_container_image_namespace: containers
+openldap_container_image_name: "openldap"
+openldap_container_image_tag: ~
+openldap_container_image_source: "pull"
+openldap_container_image_force_source: >-2
+  {{ openldap_container_image_tag | default(false, true) }}
+openldap_container_image_repository: >-2
+  {{
+    [
+      openldap_container_image_registry | default([], true),
+      openldap_container_image_namespace | default([], true),
+      openldap_container_image_name
+    ] | flatten | join('/')
+  }}
+openldap_container_image: >-2
+  {{
+    [
+      openldap_container_image_repository,
+      openldap_container_image_tag
+        | default(openldap_alpine_package_version, true),
+    ] | join(':')
+  }}
+openldap_container_env: ~
+openldap_container_user: ~
+openldap_container_ports: ~
+openldap_container_labels: ~
+openldap_container_volumes: ~
+openldap_container_networks: ~
+openldap_container_network_mode: ~
+openldap_container_dns_servers: ~
+openldap_container_etc_hosts: ~
+openldap_container_ulimits:
+  - "nofile:{{ openldap_fd_soft_limit }}:{{ openldap_fd_hard_limit }}"
+openldap_container_memory: "256M"
+openldap_container_memory_swap: ~
+openldap_container_memory_reservation: "128M"
+openldap_container_restart_policy: "on-failure"
+openldap_container_state: >-2
+  {{ (openldap_state == 'present') | ternary('started', 'absent') }}
+
+openldap_container_data_path: "{{ openldap_data_path }}"
+openldap_container_config_path: "{{ openldap_config_path }}"
+openldap_container_socket_path: "{{ openldap_socket_path }}"
+openldap_container_base_volumes:
+  - "{{ openldap_config_path }}:{{ openldap_container_config_path }}:Z"
+  - "{{ openldap_data_path }}:{{ openldap_container_data_path }}:rw"
+  - "{{ openldap_socket_path }}:{{ openldap_container_socket_path }}:rw"
+openldap_container_all_volumes: >-2
+  {{ openldap_container_base_volumes | default([], true)
+    + openldap_container_volumes | default([], true) }}
+openldap_init_container_volumes:
+  - "{{ [openldap_slapd_path, openldap_slapd_path, 'ro'] | join(':') }}"
+
+openldap_container_healthcheck:
+  test: >-2
+    [[ $(netstat -plnte | grep slapd | wc -l) -ge 1 ]]
+    && [[ $(ps aux | grep slapd | wc -l) -ge 1 ]]
+    || exit 1

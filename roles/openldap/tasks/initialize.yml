@@ -1,0 +1,47 @@
+---
+- name: Determine if persisted OLC config exists
+  ansible.builtin.stat:
+    path: "{{ openldap_olc_path }}/cn=config"
+  register: openldap_olc_stat_info
+
+- name: Ensure openldap databases are initialized
+  when: not openldap_olc_stat_info.stat.exists
+  block:
+    - name: Ensure initial slapd.ldif is templated
+      ansible.builtin.template:
+        src: "slapd.ldif.j2"
+        dest: "{{ openldap_slapd_path }}"
+        mode: "0644"
+    - name: Ensure additional schemas to install are present
+      ansible.builtin.copy:
+        content: "{{ schema.content }}"
+        dest: "{{ openldap_schema_path }}/{{ schema.name }}.ldif"
+        mode: "0644"
+      loop: "{{ openldap_additional_schemas }}"
+      loop_control:
+        loop_var: "schema"
+        label: "{{ schema.name }}"
+    - name: Ensure db data directory exists
+      ansible.builtin.file:
+        path: "{{ openldap_default_database_directory }}"
+        state: directory
+        mode: "0750"
+    - name: Ensure container is initialized using {{ openldap_deployment_method }}
+      ansible.builtin.include_tasks:
+        file: "initialize-{{ openldap_deployment_method }}.yml"
+  rescue:
+    - name: Ensure temporary schema files are absent
+      ansible.builtin.file:
+        path: "{{ openldap_schema_path }}/{{ file.name }}.ldif"
+        state: absent
+      loop: >-2
+        {{ openldap_additional_schemas }}
+      loop_control:
+        loop_var: "file"
+        label: "{{ file.name }}"
+      ignore_errors: true
+    - name: Ensure intial slapd.ldif file is absent
+      ansible.builtin.file:
+        path: "{{ openldap_slapd_path }}"
+        state: absent
+      ignore_errors: true

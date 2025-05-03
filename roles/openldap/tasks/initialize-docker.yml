@@ -1,0 +1,37 @@
+---
+- name: Ensure additional schemas are mapped to container
+  ansible.builtin.set_fact:
+    openldap_init_container_volumes: >-2
+      {{ openldap_init_container_volumes + [ schema_mount ] }}
+  vars:
+    schema_file: "{{ openldap_schema_path }}/{{ schema.name }}.ldif"
+    schema_mount: >-2
+      {{ schema_file }}:{{ schema_file }}:ro
+  loop: "{{ openldap_additional_schemas }}"
+  loop_control:
+    loop_var: "schema"
+    label: "{{ schema.name }}"
+
+- name: Ensure ldap container is initialized
+  community.docker.docker_container:
+    name: "{{ openldap_container_name }}"
+    image: "{{ openldap_container_image }}"
+    env: "{{ openldap_container_env | default(omit, true) }}"
+    user: "{{ openldap_container_user | default(omit, true) }}"
+    ports: "{{ openldap_container_ports | default(omit, true) }}"
+    labels: "{{ openldap_container_labels | default(omit, true) }}"
+    volumes: "{{ openldap_container_merged_volumes | default(omit, true) }}"
+    networks: "{{ openldap_container_networks | default(omit, true) }}"
+    network_mode: "{{ openldap_container_network_mode | default(omit, true) }}"
+    dns_servers: "{{ openldap_container_dns_servers | default(omit, true) }}"
+    etc_hosts: "{{ openldap_container_etc_hosts | default(omit, true) }}"
+    memory: "{{ openldap_container_memory | default(omit, true) }}"
+    memory_swap: "{{ openldap_container_memory_swap | default(omit, true) }}"
+    memory_reservation: >-2
+      {{ openldap_container_memory_reservation | default(omit, true) }}
+    command: "{{ openldap_slapadd_init_command }}"
+    detach: false
+    cleanup: true
+  vars:
+    openldap_container_merged_volumes: >-2
+      {{ openldap_container_all_volumes + openldap_init_container_volumes }}

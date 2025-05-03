@@ -1,0 +1,7 @@
+---
+- name: Deploy and configure openLDAP
+  hosts: "{{ openldap_hosts | default('openldap', true) }}"
+  become: "{{ openldap_become | default(true) }}"
+  gather_facts: "{{ openldap_playbook_gather_facts | default(false) }}"
+  roles:
+    - role: finallycoffee.base.openldap

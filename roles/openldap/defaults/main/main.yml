@@ -1,0 +1,24 @@
+---
+openldap_version: "2.6.8"
+openldap_alpine_revision: "0"
+openldap_alpine_package_version: >-2
+  v{{ openldap_version }}-r{{ openldap_alpine_revision | string }}
+
+openldap_domain: ~
+openldap_organization: ~
+
+openldap_config_path: "/etc/openldap/"
+openldap_olc_path: "{{ openldap_config_path }}/{0}config"
+openldap_slapd_path: "{{ openldap_config_path }}/slapd.ldif"
+openldap_schema_path: "{{ openldap_config_path }}/schema"
+openldap_data_path: "/var/lib/openldap"
+openldap_socket_path: "/run/openldap"
+openldap_socket: "{{ openldap_socket_path }}/slapd.sock"
+openldap_socket_url: >-2
+  ldapi://{{ openldap_socket | urlencode | replace('/', '%2F') }}
+
+openldap_state: "present"
+openldap_deployment_method: "docker"
+
+openldap_slapadd_init_command: >-2
+  slapadd -v -F {{ openldap_olc_path }} -n 0 -l {{ openldap_slapd_path }}

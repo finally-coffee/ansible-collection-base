@@ -1,0 +1,7 @@
+---
+- name: Ensure container image '{{ openldap_container_image }}' is {{ openldap_state }}
+  community.docker.docker_image:
+    name: "{{ openldap_container_image }}"
+    state: "{{ openldap_state }}"
+    source: "{{ openldap_container_image_source }}"
+    force_source: "{{ openldap_container_image_force_source }}"

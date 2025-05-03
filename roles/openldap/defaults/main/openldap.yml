@@ -1,0 +1,62 @@
+---
+openldap_dn: >-2
+  dc={{ openldap_domain | regex_replace('\.', ',dc=') }}
+openldap_root_username: "admin"
+openldap_root_pw: ~
+openldap_root_node_object_classes:
+  - "top"
+  - "dcObject"
+  - "organization"
+openldap_root_node_dc: "{{ openldap_domain | regex_replace('\\..+', '') }}"
+openldap_root_node_o: "{{ openldap_organization | default('not set!', true) }}"
+
+openldap_fd_soft_limit: "8192"
+openldap_fd_hard_limit: "8192"
+
+openldap_module_path: "/usr/lib/openldap"
+openldap_modules:
+  - "mdb"
+  - "hdb"
+
+openldap_core_schema_path: "{{ openldap_schema_path }}/core.ldif"
+openldap_enabled_schemas:
+  - name: "cosine"
+  - name: "inetorgperson"
+openldap_additional_schemas: []
+openldap_schemas: >-2
+  {{ openldap_enabled_schemas + openldap_additional_schemas }}
+
+openldap_config_db: "cn=config"
+openldap_config_db_olc_access: >-2
+  to *
+    by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth" manage
+    by * none
+openldap_config_db_attributes:
+  olcAccess: "{{ openldap_config_db_olc_access }}"
+
+openldap_default_indices:
+  - "objectClass eq"
+openldap_indices: []
+
+openldap_default_database_name: "mdb"
+openldap_default_database_object_class: "olcMdbConfig"
+openldap_default_database_suffix: "{{ openldap_dn }}"
+openldap_default_database_root_dn: >-2
+  cn={{ openldap_root_username }},{{ openldap_default_database_suffix }}
+openldap_default_database_root_pw: "{{ openldap_root_pw }}"
+openldap_default_database_directory: >-2
+  {{ openldap_data_path }}/{{ openldap_default_database_name }}
+openldap_default_database_indices: >-2
+  {{ openldap_default_indices + openldap_indices }}
+openldap_default_database_config: >-2
+  olcDatabase={1}{{ openldap_default_database_name }},{{ openldap_config_db }}
+openldap_default_database:
+  name: "{{ openldap_default_database_name }}"
+  object_class: "{{ openldap_default_database_object_class }}"
+  suffix: "{{ openldap_default_database_suffix }}"
+  root_dn: "{{ openldap_default_database_root_dn }}"
+  root_pw: "{{ openldap_default_database_root_pw }}"
+  directory: "{{ openldap_default_database_directory }}"
+  indices: "{{ openldap_default_database_indices }}"
+openldap_databases:
+  - "{{ openldap_default_database }}" 

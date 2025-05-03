@@ -1,0 +1,64 @@
+dn: cn=config
+objectClass: olcGlobal
+cn: config
+olcPidFile: /run/openldap/slapd.pid
+olcArgsFile: /run/openldap/slapd.args
+
+
+# Dynamic backend modules
+dn: cn=module,cn=config
+objectClass: olcModuleList
+cn: module
+olcModulepath: {{ openldap_module_path }}
+{% for mod in openldap_modules | default([]) %}
+olcModuleload: back_{{ mod }}.so
+{% endfor %}
+
+# Schema config
+dn: cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: schema
+
+include: file://{{ openldap_core_schema_path }}
+{% for schema in openldap_schemas %}
+include: file://{{ openldap_schema_path }}/{{ schema.name }}.ldif
+{% endfor %}
+
+# Frontend settings
+dn: olcDatabase=frontend,cn=config
+objectClass: olcDatabaseConfig
+objectClass: olcFrontendConfig
+olcDatabase: frontend
+
+
+# Config-DB settings
+dn: olcDatabase=config,cn=config
+objectClass: olcDatabaseConfig
+olcDatabase: config
+{% for attr in openldap_config_db_attributes | dict2items %}
+{% if attr is string %}
+{{ attr.key }}: {{ attr.value }}
+{% else %}
+{% for val in attr.value %}
+{{ attr.key }}: {{ val }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+
+# database settings
+{% for db in openldap_databases %}
+dn: olcDatabase={{ db.name }},cn=config
+objectClass: olcDatabaseConfig
+objectClass: {{ db.object_class }}
+olcDatabase: {{ db.name }}
+olcSuffix: {{ db.suffix }}
+olcRootDN: {{ db.root_dn }}
+olcRootPW: {{ db.root_pw }}
+olcDbDirectory: {{ db.directory }}
+{% for idx in db.indices %}
+olcDbIndex: {{ idx }}
+{% endfor %}
+
+
+{% endfor %}

@@ -1,0 +1,25 @@
+---
+- name: Ensure container '{{ openldap_container_name }}' is {{ openldap_container_state }}
+  community.docker.docker_container:
+    name: "{{ openldap_container_name }}"
+    image: "{{ openldap_container_image }}"
+    env: "{{ openldap_container_env | default(omit, true) }}"
+    user: "{{ openldap_container_user | default(omit, true) }}"
+    ports: "{{ openldap_container_ports | default(omit, true) }}"
+    labels: "{{ openldap_container_labels | default(omit, true) }}"
+    volumes: "{{ openldap_container_all_volumes | default(omit, true) }}"
+    networks: "{{ openldap_container_networks | default(omit, true) }}"
+    network_mode: "{{ openldap_container_network_mode | default(omit, true) }}"
+    dns_servers: "{{ openldap_container_dns_servers | default(omit, true) }}"
+    etc_hosts: "{{ openldap_container_etc_hosts | default(omit, true) }}"
+    command: "{{ openldap_container_command | default(omit, true) }}"
+    ulimits: "{{ openldap_container_ulimits | default(omit, true) }}"
+    memory: "{{ openldap_container_memory | default(omit, true) }}"
+    memory_swap: "{{ openldap_container_memory_swap | default(omit, true) }}"
+    memory_reservation: >-2
+      {{ openldap_container_memory_reservation | default(omit, true) }}
+    restart_policy: >-2
+      {{ openldap_container_restart_policy | default(omit, true) }}
+    healthcheck: "{{ openldap_container_healthcheck | default(omit, true) }}"
+    state: "{{ openldap_container_state }}"
+

@@ -1,0 +1,26 @@
+---
+- name: Check if 'openldap_state' is valid
+  ansible.builtin.fail:
+    msg: >-2
+      Invalid state '{{ openldap_state }}'!
+      Supported states are {{ openldap_states | join(', ') }}.
+  when: openldap_state not in openldap_states
+
+- name: Check if 'openldap_deployment_method' is valid
+  ansible.builtin.fail:
+    msg: >-2
+      Invalid state '{{ openldap_deployment_method }}'!
+      Supported states are {{ openldap_deployment_methods | join(', ') }}.
+  when: openldap_deployment_method not in openldap_deployment_methods
+
+- name: Ensure openldap deployment is prepared
+  ansible.builtin.include_tasks:
+    file: "prepare-{{ openldap_deployment_method }}.yml"
+
+- name: Ensure openldap is deployed using {{ openldap_deployment_method }}
+  ansible.builtin.include_tasks:
+    file: "deploy-{{ openldap_deployment_method }}.yml"
+
+- name: Ensure openldap is configured
+  ansible.builtin.include_tasks:
+    file: "configure.yml"

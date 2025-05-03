@@ -1,0 +1,6 @@
+---
+openldap_states:
+  - "present"
+  - "absent"
+openldap_deployment_methods:
+  - "docker"
