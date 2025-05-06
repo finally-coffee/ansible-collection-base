@@ -1,0 +1,21 @@
+---
+- name: Configure LDAP directory information tree
+  hosts: "{{ ldap_hosts | default('ldap') }}"
+  become: "{{ ldap_become | default(false) }}"
+  gather_facts: "{{ ldap_gather_facts | default(false) }}"
+  vars:
+    _state: "{{ ldap_state | default('present') }}"
+    _ldap_bind_info: &ldap_bind_info
+      server_uri: "{{ ldap_server_uri }}"
+      bind_dn: "{{ ldap_bind_dn }}"
+      bind_pw: "{{ ldap_bind_pw }}"
+  tasks:
+    - name: Ensure org units in '{{ ldap_base_dn }}' are {{ _state }}
+      community.general.ldap_entry:
+        <<: *ldap_bind_info
+        dn: "ou={{ org_unit }},{{ ldap_base_dn }}"
+        objectClass: "organizationalUnit"
+        state: "{{ _state }}"
+      loop: "{{ ldap_org_units | default([], true) }}"
+      loop_control:
+        loop_var: org_unit
