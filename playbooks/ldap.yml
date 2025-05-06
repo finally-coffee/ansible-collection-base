@@ -1,0 +1,109 @@
+---
+- name: Configure LDAP directory information tree
+  hosts: "{{ ldap_hosts | default('ldap') }}"
+  become: "{{ ldap_become | default(false) }}"
+  gather_facts: "{{ ldap_gather_facts | default(false) }}"
+  vars:
+    _state: "{{ ldap_state | default('present') }}"
+    _ldap_bind_info: &ldap_bind_info
+      server_uri: "{{ ldap_server_uri }}"
+      bind_dn: "{{ ldap_bind_dn }}"
+      bind_pw: "{{ ldap_bind_pw }}"
+  roles:
+    # Ensure all defaults from openldap role are in scope
+    - role: finallycoffee.base.openldap
+      when: false
+  tasks:
+    - name: Ensure org units in '{{ ldap_base_dn }}' are {{ _state }}
+      community.general.ldap_entry:
+        <<: *ldap_bind_info
+        dn: "ou={{ org_unit }},{{ ldap_base_dn }}"
+        objectClass: "organizationalUnit"
+        state: "{{ _state }}"
+      loop: "{{ ldap_org_units | default([], true) }}"
+      loop_control:
+        loop_var: org_unit
+
+    - name: Ensure admin user is {{ _state }}
+      community.general.ldap_entry:
+        <<: *ldap_bind_info
+        dn: "uid={{ ldap_admin_user_rdn }},{{ ldap_admin_user_base }}"
+        objectClass: "{{ ldap_admin_user_object_classes }}"
+        attributes: "{{ ldap_admin_user_attributes }}"
+        state: "{{ _state }}"
+      vars:
+        ldap_admin_user_base: >-2
+          {{ ldap_admin_user_base_dn | default(ldap_base_dn, true) }}
+      when: ldap_admin_user_rdn is defined
+
+    - name: Ensure admin user attributes are correct
+      community.general.ldap_attrs:
+        <<: *ldap_bind_info
+        dn: "uid={{ ldap_admin_user_rdn }},{{ ldap_admin_user_base }}"
+        attributes: "{{ ldap_admin_user_attributes }}"
+        state: "{{ _state }}"
+      vars:
+        ldap_admin_user_base: >-2
+          {{ ldap_admin_user_base_dn | default(ldap_base_dn, true) }}
+      when:
+        - ldap_admin_user_rdn is defined
+        - _state == 'present'
+
+    - name: Ensure ldap groups are {{ _state }}
+      community.general.ldap_entry:
+        <<: *ldap_bind_info
+        dn: "{{ _ldap_group_dn }}"
+        objectClass: "{{ _ldap_group_object_classes }}"
+        attributes: "{{ _ldap_group_attributes }}"
+        state: "{{ _state }}"
+      vars:
+        _ldap_group_dn: >-2
+          cn={{ _ldap_group.name }},{{ ldap_group_base_dn }}
+        _ldap_group_object_classes:
+          - "groupOfNames"
+        _ldap_group_attributes:
+          cn: "{{ _ldap_group.name }}"
+          member: >-2
+            {{ _ldap_group.members | default([]) }}
+      loop: "{{ ldap_groups | default([], true) }}"
+      loop_control:
+        loop_var: _ldap_group
+        label: "{{ _ldap_group.name }}"
+      when:
+        - ldap_groups is defined
+        - ldap_group_base_dn is defined
+
+    - name: Ensure service accounts are {{ _state }}
+      community.general.ldap_entry:
+        <<: *ldap_bind_info
+        dn: "{{ _ldap_service_account_dn }}"
+        objectClass: "{{ _ldap_service_account_object_classes }}"
+        attributes: "{{ _ldap_service_account_attributes }}"
+        state: "{{ _state }}"
+      loop: &ldap_service_account_loop "{{ ldap_service_accounts | default([]) }}"
+      loop_control: &ldap_service_account_loop_control
+        loop_var: "_ldap_service_account"
+        label: "{{ _ldap_service_account.name }}"
+      vars: &ldap_service_account_vars
+        _ldap_service_account_dn: >-2
+          uid={{ _ldap_service_account.name }},{{ ldap_service_account_base_dn }}
+        _ldap_service_account_object_classes:
+          - "account"
+          - "simpleSecurityObject"
+        _ldap_service_account_attributes:
+          uid: "{{ _ldap_service_account.name }}"
+          userPassword: "{{ _ldap_service_account.password }}"
+      when: &ldap_service_account_when
+        - ldap_service_accounts is defined
+        - ldap_service_account_base_dn is defined
+
+    - name: Ensure service accounts attributes are correct
+      community.general.ldap_attrs:
+        <<: *ldap_bind_info
+        dn: "{{ _ldap_service_account_dn }}"
+        attributes: "{{ _ldap_service_account_attributes }}"
+        state: exact
+      loop: *ldap_service_account_loop
+      loop_control: *ldap_service_account_loop_control
+      vars: *ldap_service_account_vars
+      when: *ldap_service_account_when
