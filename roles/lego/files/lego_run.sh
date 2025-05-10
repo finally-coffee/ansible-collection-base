@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -xeuo pipefail
 
 LEGO_BINARY=$(/usr/bin/env which lego)
 
@@ -9,7 +9,8 @@ if [[ -n "${LEGO_HTTP_FALLBACK_PORT:-}" ]]; then
     exit 1
   fi
   set +e
-  nc_exit_code=$(nc -z 127.0.0.1 $LEGO_HTTP_PORT);
+  nc -z 127.0.0.1 $LEGO_HTTP_PORT;
+  nc_exit_code=$?;
   set -e
   if [[ $nc_exit_code -eq 0 ]]; then
       LEGO_HTTP_PORT=$LEGO_HTTP_FALLBACK_PORT
