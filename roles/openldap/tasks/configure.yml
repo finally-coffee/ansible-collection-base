@@ -1,9 +1,31 @@
 ---
-- name: Ensure ACLs are configured
+- name: Ensure config attributes are configured
+  community.general.ldap_attrs:
+    dn: "{{ openldap_config_dn }}"
+    attributes: "{{ { entry.key : entry.value } }}"
+    state: exact
+    server_uri: "{{ openldap_socket_url }}"
+  loop: "{{ openldap_config_attributes | dict2items }}"
+  loop_control:
+    loop_var: "entry"
+    label: "{{ entry.key }}"
+
+- name: Ensure config db attributes are configured
+  community.general.ldap_attrs:
+    dn: "{{ openldap_config_db_dn }}"
+    attributes: "{{ { entry.key : entry.value } }}"
+    state: exact
+    server_uri: "{{ openldap_socket_url }}"
+  loop: "{{ openldap_config_db_attributes | dict2items }}"
+  loop_control:
+    loop_var: "entry"
+    label: "{{ entry.key }}"
+
+- name: Ensure ACLs for default database are configured
   community.general.ldap_attrs:
     dn: "{{ openldap_default_database_config }}"
     attributes:
-      olcAccess: "{{ openldap_config_db_olc_access }}"
+      olcAccess: "{{ openldap_default_database_olc_access }}"
     state: "exact"
     server_uri: "{{ openldap_socket_url }}"
   retries: 3
