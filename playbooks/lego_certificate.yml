@@ -1,0 +1,85 @@
+---
+- name: Populate DNS, acquire TSIG key and obtain certificate
+  hosts: "{{ target_hosts | default('all') }}"
+  become: "{{ target_become | default(true) }}"
+  gather_facts: "{{ target_gather_facts | default(false) }}"
+  pre_tasks:
+    - name: Build target dns records
+      ansible.builtin.set_fact:
+        target_dns_records: "{{ target_dns_records + [ _dns_record ] }}"
+      vars:
+        _dns_record:
+          type: "CNAME"
+          name: "_acme-challenge.{{ _domain }}"
+          content: "{{ target_tsig_key_name }}.{{ target_acme_zone }}."
+      loop: "{{ target_domains }}"
+      loop_control:
+        loop_var: "_domain"
+    - name: Populate dns_server if not given
+      ansible.builtin.set_fact:
+        dns_server: "{{ target_dns_server }}"
+      when: dns_server is not defined
+  roles:
+    - role: finallycoffee.base.dns
+      vars:
+        dns_records: "{{ target_dns_records + target_dns_additional_records }}"
+        dns_tsig_name: "{{ target_dns_tsig_key.name }}"
+        dns_tsig_algo: "{{ target_dns_tsig_key.algorithm }}"
+        dns_tsig_key: "{{target_dns_tsig_key.key }}"
+      delegate_to: localhost
+    - role: finallycoffee.base.powerdns_tsig_key
+      vars:
+        powerdns_tsig_key_algo: "{{ target_powerdns_tsig_key_algo }}"
+        powerdns_tsig_key_name: "{{ target_tsig_key_name }}"
+        powerdns_tsig_key_path: "{{ target_tsig_key_path }}"
+        powerdns_tsig_key_path_owner: "{{ target_acme_user }}"
+        powerdns_tsig_key_path_group: "{{ target_acme_group }}"
+    - role: finallycoffee.base.lego
+      vars:
+        lego_instance: "{{ target_lego_instance }}"
+        lego_instance_base_path: "{{ target_lego_instance_base_path }}"
+        lego_environment: "{{ target_lego_environment }}"
+        lego_cert_domains: "{{ target_lego_domains }}"
+        lego_acme_account_email: "{{ target_acme_account_email }}"
+        lego_acme_challenge_type: "{{ target_lego_acme_challenge_type }}"
+        lego_acme_challenge_provider: "{{ target_lego_acme_challenge_provider }}"
+        lego_acme_server_url: "{{ target_lego_acme_server_url }}"
+  vars:
+    target_domains: []
+    target_acme_zone: ~
+    target_acme_account_email: ~
+    target_dns_server: ~
+    target_dns_additional_records: []
+    target_dns_tsig_key: {}
+    target_lego_instance: "{{ target_domains | first }}"
+    target_lego_instance_base_path: "/opt/acme"
+    target_lego_domains: "{{ target_domains }}"
+    target_lego_acme_challenge_type: "dns"
+    target_lego_acme_challenge_provider: "rfc2136"
+    target_lego_acme_server_url: >-2
+      {{ lego_letsencrypt_server_urls.prod }}
+    target_lego_environment:
+      RFC2136_TSIG_KEY: "{{ target_tsig_key_name }}"
+      RFC2136_TSIG_SECRET_FILE: "{{ target_tsig_key_path }}"
+      RFC2136_TSIG_ALGORITHM: "{{ target_powerdns_tsig_key_algo }}"
+      RFC2136_NAMESERVER: "{{ target_dns_server }}"
+      RFC2136_DNS_TIMEOUT: 15
+      RFC2136_TTL: 60
+      RFC2136_SEQUENCE_INTERVAL: 5
+      RFC2136_POLLING_INTERVAL: 10
+      RFC2136_PROPAGATION_TIMEOUT: >-2
+        {{ (target_lego_domains | length * 120) | int }}
+      LEGO_EXPERIMENTAL_CNAME_SUPPORT: "true"
+    target_tsig_key_name: "{{ target_lego_instance | hash('sha1') }}"
+    target_tsig_key_path: >-2
+      {{ target_lego_instance_base_path }}/{{ target_lego_instance }}/secrets/rfc2136_tsig.key
+    target_tsig_key_path_owner:
+    target_tsig_key_path_group:
+    target_acme_user: "acme-{{ target_lego_instance }}"
+    target_acme_user_id: >-2
+      {{ powerdns_tsig_key_path_owner_info.uid }}
+    target_acme_group: "acme-{{ target_lego_instance }}"
+    target_acme_group_id: >-2
+      {{ powerdns_tsig_key_path_owner_info.gid }}
+    target_powerdns_tsig_key_algo: "hmac-sha256"
+    target_dns_records: []
