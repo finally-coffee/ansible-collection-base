@@ -1,7 +1,7 @@
 ---
 minio_container_name: minio
 minio_container_image_name: "docker.io/minio/minio"
-minio_container_image_tag: "RELEASE.2025-07-18T21-56-31Z"
+minio_container_image_tag: "RELEASE.2025-07-23T15-54-02Z"
 minio_container_image: "{{ minio_container_image_name }}:{{ minio_container_image_tag }}"
 minio_container_networks: []
 minio_container_ports: []
