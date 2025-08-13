@@ -1,5 +1,5 @@
 ---
-nginx_version: "1.29.0"
+nginx_version: "1.29.1"
 nginx_flavour: alpine
 nginx_base_path: /opt/nginx
 nginx_config_file: "{{ nginx_base_path }}/nginx.conf"
