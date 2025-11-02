@@ -10,7 +10,7 @@
       vars:
         _dns_record:
           type: "CNAME"
-          name: "_acme-challenge.{{ _domain }}"
+          name: "_acme-challenge.{{ _domain }}."
           content: "{{ target_tsig_key_name }}.{{ target_acme_zone }}."
       loop: "{{ target_domains }}"
       loop_control:
