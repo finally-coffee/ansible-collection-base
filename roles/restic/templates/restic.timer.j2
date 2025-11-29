@@ -4,6 +4,9 @@ Description=Run {{ restic_timer_description | default(restic_job_name) }}
 [Timer]
 OnCalendar={{ restic_policy.frequency }}
 Unit={{ restic_systemd_unit_naming_scheme }}.service
+{% if restic_systemd_timer_randomized_delay_sec %}
+RandomizedDelaySec={{ restic_systemd_timer_randomized_delay_sec }}
+{% endif %}
 
 [Install]
 WantedBy=timers.target
