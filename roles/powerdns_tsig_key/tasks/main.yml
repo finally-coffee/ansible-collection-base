@@ -41,7 +41,7 @@
       community.docker.docker_container_exec:
         container: "{{ powerdns_tsig_key_container_name }}"
         command: "pdnsutil list-tsig-keys"
-      delegate_to: "{{ powerdns_tsig_key_hostname }}"
+      delegate_to: "{{ powerdns_tsig_key_hostname | default(inventory_hostname) }}"
       register: powerdns_tsig_key_powerdns_info
       changed_when: false
       check_mode: false
@@ -54,7 +54,7 @@
       when: >-
         (powerdns_tsig_key_name ~ '. ' ~ powerdns_tsig_key_algo ~ '. ')
         not in powerdns_tsig_key_powerdns_info.stdout
-      delegate_to: "{{ powerdns_tsig_key_hostname }}"
+      delegate_to: "{{ powerdns_tsig_key_hostname | default(inventory_hostname) }}"
       register: powerdns_tsig_key_powerdns_generated_tsig_key
       throttle: 1
       become: true
@@ -67,7 +67,7 @@
       when: >-
         (powerdns_tsig_key_name ~ '. ' ~ powerdns_tsig_key_algo ~ '. ')
         not in powerdns_tsig_key_powerdns_info.stdout
-      delegate_to: "{{ powerdns_tsig_key_hostname }}"
+      delegate_to: "{{ powerdns_tsig_key_hostname | default(inventory_hostname) }}"
       throttle: 1
       become: true
 
