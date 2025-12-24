@@ -1,0 +1,52 @@
+---
+- name: Ensure state '{{ caddy_state }}' is valid
+  ansible.builtin.fail:
+    msg: >-2
+      Unsupported caddy_state '{{ caddy_state }}'.
+      Supported states are {{ caddy_states | join(', ') }}.
+  when: caddy_state not in caddy_states
+
+- name: Ensure deployment method '{{ caddy_deployment_method }}' is valid
+  ansible.builtin.fail:
+    msg: >-2
+      Unsupported caddy_deployment_method '{{ caddy_deployment_method }}'.
+      Supported deployment methods are {{ caddy_deployment_methods | join(', ') }}.
+  when: caddy_deployment_method not in caddy_deployment_methods
+
+- name: Ensure caddy user '{{ caddy_user }}' is {{ caddy_user_state }}
+  ansible.builtin.user:
+    name: "{{ caddy_user }}"
+    state: "{{ caddy_user_state }}"
+    system: "{{ caddy_user_system }}"
+    create_home: "{{ caddy_user_create_home }}"
+  register: "caddy_user_info"
+
+- name: Ensure base directories are present
+  ansible.builtin.file:
+    path: "{{ dir.name }}"
+    state: "directory"
+    owner: "{{ dir.owner | default(caddy_run_uid) }}"
+    group: "{{ dir.group | default(caddy_run_uid) }}"
+    mode: "{{ dir.mode | default('0750') }}"
+  when: caddy_state == 'present'
+  loop:
+    - name: "{{ caddy_config_dir }}"
+    - name: "{{ caddy_dynamic_configs_dir }}"
+    - name: "{{ caddy_config_internal_dir }}"
+    - name: "{{ caddy_state_dir }}"
+  loop_control:
+    loop_var: "dir"
+    label: "{{ dir.name }}"
+
+- name: Ensure caddy configuration is up to date
+  ansible.builtin.copy:
+    dest: "{{ caddy_config_file }}"
+    content: "{{ caddy_config }}"
+    owner: "{{ caddy_run_uid }}"
+    group: "{{ caddy_run_gid }}"
+    mode: "0640"
+  when: caddy_state == 'present'
+
+- name: Ensure caddy is deployed using {{ caddy_deployment_method }}
+  ansible.builtin.include_tasks:
+    file: "deploy-{{ caddy_deployment_method }}.yml"

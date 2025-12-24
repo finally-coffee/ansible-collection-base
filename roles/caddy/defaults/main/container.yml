@@ -1,0 +1,43 @@
+---
+caddy_container_image_registry: "docker.io"
+caddy_container_image_namespace: "library"
+caddy_container_image_repository: "caddy"
+caddy_container_image_name: >-2
+  {{ [
+    caddy_container_image_registry | default([], true),
+    caddy_container_image_namespace | default([], true),
+    caddy_container_image_repository
+  ] | flatten | join('/') }}
+
+caddy_container_image_tag: ~
+caddy_container_image: >-2
+  {{ [
+    caddy_container_image_name,
+    caddy_container_image_tag | default(caddy_version, true)
+  ] | join(':') }}
+caddy_container_image_source: "pull"
+caddy_container_image_force_source: >-2
+  {{ caddy_container_image_tag | ansible.builtin.type_debug != 'NoneType' }}
+caddy_container_image_state: "{{ caddy_state }}"
+
+caddy_container_name: "caddy"
+caddy_container_env: ~
+caddy_container_ports: ~
+caddy_container_user: ~
+caddy_container_labels: ~
+caddy_container_volumes: ~
+caddy_container_config_dir: "/etc/caddy"
+caddy_container_default_volumes:
+  - "{{ caddy_config_dir }}:{{ caddy_container_config_dir }}:ro"
+  - "{{ caddy_dynamic_configs_dir }}:{{ caddy_dynamic_configs_dir }}:ro"
+  - "{{ caddy_config_internal_dir }}:/config:rw"
+  - "{{ caddy_state_dir }}:/data:rw"
+caddy_container_all_volumes: >-2
+  {{ caddy_container_default_volumes | default([], true)
+  + caddy_container_volumes | default([], true) }}
+caddy_container_state: >-2
+  {{ (caddy_state == 'present') | ternary('started', 'absent') }}
+caddy_container_restart_policy: "on-failure"
+caddy_container_networks: ~
+caddy_container_network_mode: ~
+caddy_container_etc_hosts: ~

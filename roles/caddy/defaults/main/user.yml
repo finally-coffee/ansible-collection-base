@@ -1,0 +1,7 @@
+---
+caddy_user_state: "{{ caddy_state }}"
+caddy_user_system: true
+caddy_user_create_home: false
+
+caddy_run_uid: "{{ caddy_user_info.uid | default(caddy_user) }}"
+caddy_run_gid: "{{ caddy_user_info.group | default(caddy_user) }}"

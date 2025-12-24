@@ -5,6 +5,8 @@
 This ansible collection provides various roles for installing
 and configuring basic system utilities like gnupg, ssh etc
 
+- [`caddy`](roles/caddy/README.md): configures and runs caddy
+
 - [`git`](roles/git/README.md): configures git on the target system
 
 - [`gnupg`](roles/gnupg/README.md): configures gnupg on the target system

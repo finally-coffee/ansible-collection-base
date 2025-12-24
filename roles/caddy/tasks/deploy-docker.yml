@@ -1,0 +1,26 @@
+---
+- name: Ensure container image '{{ caddy_container_image }}' is {{ caddy_container_image_state }}
+  community.docker.docker_image:
+    name: "{{ caddy_container_image }}"
+    state: "{{ caddy_container_image_state }}"
+    source: "{{ caddy_container_image_source }}"
+    force_source: "{{ caddy_container_image_force_source }}"
+  register: caddy_container_image_info
+  until: caddy_container_image_info is success
+  retries: 10
+  delay: 3
+
+- name: Ensure container '{{ caddy_container_name }}' is {{ caddy_container_state }}
+  community.docker.docker_container:
+    name: "{{ caddy_container_name }}"
+    image: "{{ caddy_container_image }}"
+    state: "{{ caddy_container_state }}"
+    env: "{{ caddy_container_env | default(omit, true) }}"
+    user: "{{ caddy_container_user | default(omit, true) }}"
+    ports: "{{ caddy_container_ports | default(omit, true) }}"
+    labels: "{{ caddy_container_labels | default(omit, true) }}"
+    volumes: "{{ caddy_container_all_volumes }}"
+    networks: "{{ caddy_container_networks | default(omit, true) }}"
+    etc_hosts: "{{ caddy_container_etc_hosts | default(omit, true) }}"
+    network_mode: "{{ caddy_container_network_mode | default(omit, true) }}"
+    restart_policy: "{{ caddy_container_restart_policy }}"

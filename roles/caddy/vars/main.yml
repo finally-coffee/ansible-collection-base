@@ -1,0 +1,6 @@
+---
+caddy_states:
+  - "present"
+  - "absent"
+caddy_deployment_methods:
+  - "docker"

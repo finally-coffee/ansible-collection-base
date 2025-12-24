@@ -1,0 +1,7 @@
+---
+- name: Install and configure caddy
+  hosts: "{{ caddy_hosts | default('caddy') }}"
+  become: "{{ caddy_become | default(false) }}"
+  gather_facts: "{{ caddy_gather_facts | default(false) }}"
+  roles:
+    - role: finallycoffee.base.caddy

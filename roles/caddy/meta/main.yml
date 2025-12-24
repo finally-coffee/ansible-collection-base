@@ -1,0 +1,13 @@
+---
+allow_duplicates: true
+dependencies: []
+galaxy_info:
+  role_name: caddy
+  description: Deploy caddy, a webserver
+  galaxy_tags:
+    - caddy
+    - zerossl
+    - http
+    - webserver
+    - docker
+    - podman

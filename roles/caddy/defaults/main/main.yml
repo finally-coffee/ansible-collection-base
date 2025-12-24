@@ -1,0 +1,11 @@
+---
+caddy_user: "caddy"
+caddy_version: "2.10.2"
+caddy_config_file: "/etc/caddy/Caddyfile"
+caddy_config_dir: "{{ caddy_config_file | ansible.builtin.dirname }}"
+caddy_config_internal_dir: "{{ caddy_config_dir }}/config"
+caddy_dynamic_configs_dir: "{{ caddy_config_dir }}/sites.d"
+caddy_state_dir: "/var/lib/caddy"
+
+caddy_state: "present"
+caddy_deployment_method: "docker"
