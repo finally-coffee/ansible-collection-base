@@ -1,0 +1,11 @@
+---
+allow_duplicates: true
+dependencies: []
+galaxy_info:
+  role_name: caddy_site
+  description: Deploy a sites' configuration in caddy
+  galaxy_tags:
+    - caddy
+    - zerossl
+    - http
+    - webserver

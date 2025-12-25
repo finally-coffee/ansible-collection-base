@@ -1,0 +1,24 @@
+---
+- name: Ensure reverse proxy configuration is created
+  hosts: "{{ target_hosts }}"
+  become: "{{ target_become | default(false) }}"
+  gather_facts: "{{ target_gather_facts | default(false) }}"
+  roles:
+    - role: finallycoffee.base.caddy_site
+  vars:
+    caddy_site_cert_basepath: >-2
+      {{ caddy_site_tls_store | default('/tls') }}/{{ caddy_site_name }}/certificates/{{ caddy_site_name }}
+    caddy_site_config: |+2
+      https://{{ caddy_site_name }} {
+          tls {{ caddy_site_cert_basepath}}.crt {{ caddy_site_cert_basepath }}.key
+          header {
+              Strict-Transport-Security "max-age=31536000"
+          }
+          encode zstd gzip
+          reverse_proxy {{ caddy_reverse_proxy_backend_addr | mandatory }} {
+            {% if caddy_reverse_proxy_import_proxyheaders | default(true, true) -%}
+            import proxyheaders
+            {%- endif +%}
+          }
+      }
+

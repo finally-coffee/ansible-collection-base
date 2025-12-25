@@ -1,0 +1,13 @@
+---
+caddy_site_name: ~
+caddy_site_config: ~
+caddy_site_state: "present"
+
+caddy_site_configs: "/etc/caddy/sites.d"
+caddy_site_config_dir: >-2
+  {{ caddy_site_configs }}/{{ caddy_site_name }}
+caddy_site_config_file: >-2
+  {{ caddy_site_config_dir }}/Caddyfile
+
+caddy_site_owner: "caddy"
+caddy_site_group: "caddy"

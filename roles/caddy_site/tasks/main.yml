@@ -1,0 +1,26 @@
+---
+- name: Fail if required variables are not populated
+  ansible.builtin.fail:
+    msg: "Either `caddy_site_name` or `caddy_site_config` is not provided"
+  when: >-2
+    (caddy_site_name | ansible.builtin.type_debug == 'NoneType')
+    or
+    (caddy_site_config | ansible.builtin.type_debug == 'NoneType')
+
+- name: Ensure directory for caddy site config '{{ caddy_site_name }}' is {{ caddy_site_state }}
+  ansible.builtin.file:
+    path: "{{ caddy_site_config_dir }}"
+    state: >-2
+      {{ (caddy_site_state == 'present') | ternary('directory', 'absent') }}
+    owner: "{{ caddy_site_owner }}"
+    group: "{{ caddy_site_group }}"
+    mode: "0750"
+
+- name: Ensure caddy site configuration is templated
+  ansible.builtin.copy:
+    dest: "{{ caddy_site_config_file }}"
+    content: "{{ caddy_site_config }}"
+    owner: "{{ caddy_site_owner }}"
+    group: "{{ caddy_site_group }}"
+    mode: "0640"
+  when: caddy_site_state == 'present'
