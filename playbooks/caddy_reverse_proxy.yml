@@ -15,10 +15,14 @@
               Strict-Transport-Security "max-age=31536000"
           }
           encode zstd gzip
+          {% if caddy_reverse_proxy_template_block  | default(true) -%}
           reverse_proxy {{ caddy_reverse_proxy_backend_addr | mandatory }} {
             {% if caddy_reverse_proxy_import_proxyheaders | default(true, true) -%}
             import proxyheaders
             {%- endif +%}
           }
+          {%- else -%}
+          {{- caddy_reverse_proxy_block | default('') | indent(4) }}
+          {%- endif +%}
       }
 
