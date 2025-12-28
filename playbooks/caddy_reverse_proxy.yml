@@ -17,7 +17,8 @@
           encode zstd gzip
           {% if caddy_reverse_proxy_template_block  | default(true) -%}
           reverse_proxy {{ caddy_reverse_proxy_backend_addr | mandatory }} {
-            {% if caddy_reverse_proxy_import_proxyheaders | default(true, true) -%}
+            {{ caddy_reverse_proxy_extra_config | default('') | indent(6) }}
+            {%- if caddy_reverse_proxy_import_proxyheaders | default(true, true) %}
             import proxyheaders
             {%- endif +%}
           }
