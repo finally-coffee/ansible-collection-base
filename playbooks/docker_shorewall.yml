@@ -1,0 +1,54 @@
+---
+- name: Configure shorewall for docker egress
+  hosts: "{{ docker_shorewall_hosts | default('docker:&shorewall') }}"
+  become: "{{ docker_shorewall_become | default(true, true) }}"
+  tasks:
+    - name: Add docker interface
+      ansible.builtin.lineinfile:
+        path: /etc/shorewall/interfaces
+        regex: "^dock"
+        line: |
+          dock	docker0		bridge
+    - name: Add docker routing policy
+      ansible.builtin.blockinfile:
+        path: /etc/shorewall/policy
+        insertbefore: "^# THE FOLLOWING POLICY MUST BE LAST"
+        content: |
+          # Docker specific configuration
+          dock		all		ACCEPT
+    - name: Add docker zone
+      ansible.builtin.lineinfile:
+        path: /etc/shorewall/zones
+        regex: "^dock"
+        line: |
+          dock	ipv4
+    - name: Add docker egress rules
+      ansible.builtin.blockinfile:
+        path: /etc/shorewall/rules
+        marker: "#{mark} ANSIBLE MANAGED BLOCK - DOCKER EGRESS"
+        content: |
+          #
+          # Docker egress configuration
+          #
+          ACCEPT		dock		all
+    - name: Add docker dns rules
+      ansible.builtin.blockinfile:
+        path: /etc/shorewall/rules
+        marker: "#{mark} ANSIBLE MANAGED BLOCK - DOCKER DNS"
+        content: |
+          #
+          # Docker dns configuration
+          #
+          DNS(ACCEPT)	dock		all
+    - name: Enable shorewall docker support
+      ansible.builtin.lineinfile:
+        path: /etc/shorewall/shorewall.conf
+        line: "DOCKER=Yes"
+        regex: "^DOCKER="
+    - name: Ensure shorewall reloaded
+      community.general.systemd_service:
+        service: "{{ item }}"
+        state: reloaded
+      loop:
+        - shorewall.service
+        - shorewall6.service
