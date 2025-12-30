@@ -1,0 +1,7 @@
+---
+- name: Install and configure network time protocol daemon
+  hosts: "{{ ntp_hosts | default('ntp') }}"
+  become: "{{ ntp_become | default(false) }}"
+  gather_facts: "{{ ntp_gather_facts | default(false) }}"
+  roles:
+    - role: finallycoffee.base.ntp

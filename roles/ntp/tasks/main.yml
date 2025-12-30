@@ -1,0 +1,28 @@
+---
+- name: Check if 'ntp_state' is valid
+  ansible.builtin.fail:
+    msg: >-2
+      Invalid state '{{ ntp_state }}'! Valid
+      states are {{ ntp_states | join(', ') }}.
+  when: ntp_state not in ntp_states
+
+- name: Ensure system package is {{ ntp_state }}
+  ansible.builtin.package:
+    name: "{{ ntp_package_name }}"
+    state: "{{ ntp_state }}"
+
+- name: Ensure /etc/localtime is symlinked
+  ansible.builtin.file:
+    src: "{{ ntp_usr_share_zoneinfo_path }}/{{ ntp_timezone }}"
+    dest: "{{ ntp_etc_localtime_file }}"
+    state: "{{ (ntp_state == 'present') | ternary('link', 'absent') }}"
+
+- name: Ensure ntp systemd service is configured
+  ansible.builtin.systemd:
+    name: "{{ ntp_systemd_service_name }}"
+    enabled: "{{ ntp_systemd_service_enabled }}"
+
+- name: Ensure ntp systemd service is {{ ntp_systemd_service_state }}
+  ansible.builtin.systemd:
+    name: "{{ ntp_systemd_service_name }}"
+    state: "{{ ntp_systemd_service_state }}"

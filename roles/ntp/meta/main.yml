@@ -1,0 +1,8 @@
+---
+allow_duplicates: true
+dependencies: []
+galaxy_info:
+  role_name: ntp
+  description: Install network time protocol daemon
+  galaxy_tags:
+    - ntp

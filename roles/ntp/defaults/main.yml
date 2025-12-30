@@ -1,0 +1,14 @@
+---
+ntp_state: present
+ntp_package_name: "ntp"
+
+ntp_timezone: "Europe/Paris"
+
+ntp_systemd_service_name: "ntpd.service"
+ntp_systemd_service_state: >-2
+  {{ (ntp_state == 'present') | ternary('started', 'stopped') }}
+ntp_systemd_service_enabled: >-2
+  {{ (ntp_state == 'present') }}
+
+ntp_etc_localtime_file: "/etc/localtime"
+ntp_usr_share_zoneinfo_path: "/usr/share/zoneinfo"
