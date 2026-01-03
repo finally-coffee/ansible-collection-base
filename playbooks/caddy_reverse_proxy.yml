@@ -8,7 +8,9 @@
   vars:
     caddy_site_cert_basepath: >-2
       {{ caddy_site_tls_store | default('/tls') }}/{{ caddy_site_name }}/certificates/{{ caddy_site_name }}
-    caddy_site_config: |+2
+    caddy_site_config: >-2
+      {{ caddy_site_config_override | default(caddy_site_default_config, true) }}
+    caddy_site_default_config: |+2
       https://{{ caddy_site_name }} {
           tls {{ caddy_site_cert_basepath}}.crt {{ caddy_site_cert_basepath }}.key
           header {
@@ -16,7 +18,7 @@
           }
           encode zstd gzip
           {% if caddy_reverse_proxy_template_block  | default(true) -%}
-          reverse_proxy {{ caddy_reverse_proxy_backend_addr | mandatory }} {
+          reverse_proxy {{ caddy_reverse_proxy_backend_addr }} {
             {{ caddy_reverse_proxy_extra_config | default('') | indent(6) }}
             {%- if caddy_reverse_proxy_import_proxyheaders | default(true, true) %}
             import proxyheaders
