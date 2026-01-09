@@ -1,0 +1,4 @@
+---
+wg_quick_states:
+  - "present"
+  - "absent"

@@ -1,0 +1,27 @@
+---
+- name: Ensure wg_quick_state is valid
+  ansible.builtin.fail:
+    msg: >-2
+      Invalid state '{{ wg_quick_state }}'. Valid
+      states are {{ wg_quick_states | join(', ') }}.
+  when: wg_quick_state not in wg_quick_states
+
+- name: Ensure system packages are available
+  ansible.builtin.package:
+    name: "{{ wg_quick_system_packages }}"
+    state: "present"
+  when: wg_quick_state == 'present'
+
+- name: Ensure configuration folder is present
+  ansible.builtin.file:
+    name: "{{ wg_quick_configuration_dir }}"
+    state: "directory"
+  when: wg_quick_state == 'present'
+
+- name: Ensure connections are in the configured state
+  ansible.builtin.include_tasks:
+    file: "configure-interface.yml"
+  loop: "{{ wg_quick_interfaces }}"
+  loop_control:
+    loop_var: "wg_quick_iface"
+    label: "{{ wg_quick_iface.name }}"

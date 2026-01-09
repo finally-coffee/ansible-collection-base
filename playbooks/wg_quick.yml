@@ -1,0 +1,7 @@
+---
+- name: Configure wireguard interfaces with wg_quick
+  hosts: "{{ wg_quick_hosts | default('wg_quick') }}"
+  become: "{{ wg_quick_become | default(false) }}"
+  gather_facts: "{{ wg_quick_gather_facts | default(false) }}"
+  roles:
+    - role: finallycoffee.base.wg_quick

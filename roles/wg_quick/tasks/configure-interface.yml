@@ -1,0 +1,25 @@
+---
+- name: Ensure wg-quick configuration for interface '{{ wg_quick_iface.name }}' is up to date
+  ansible.builtin.template:
+    src: "wg-quick.conf.j2"
+    dest: "{{ wg_quick_configuration_dir }}/{{ wg_quick_iface.name }}.conf"
+  when: wg_quick_iface.state | default(wg_quick_state) == 'present'
+
+- name: Ensure systemd service is enabled
+  ansible.builtin.systemd_service:
+    name: "wg-quick@{{ wg_quick_iface.name }}.service"
+    enabled: true
+  when: wg_quick_iface.state | default(wg_quick_state) == 'present'
+
+- name: Ensure systemd service is {{ wg_quick_iface.state | default(wg_quick_state) }}
+  ansible.builtin.systemd_service:
+    name: "wg-quick@{{ wg_quick_iface.name }}.service"
+    state: >-2
+      {{ (wg_quick_iface.state | default(wg_quick_state) == 'present')
+        | ternary('started', 'absent') }}
+
+- name: Ensure wg-quick configuration for interface '{{ wg_quick_iface.name }}' is absent
+  ansible.builtin.file:
+    path: "{{ wg_quick_configuration_dir }}/{{ wg_quick_face.name }}.conf"
+    state: "absent"
+  when: wg_quick_iface.state | default(wg_quick_state) == 'absent'
