@@ -1,0 +1,20 @@
+---
+- name: Ensure system packages are available
+  ansible.builtin.package:
+    name: "{{ wg_quick_system_packages }}"
+    state: "present"
+  when: wg_quick_state == 'present'
+
+- name: Ensure configuration folder is present
+  ansible.builtin.file:
+    name: "{{ wg_quick_configuration_dir }}"
+    state: "directory"
+  when: wg_quick_state == 'present'
+
+- name: Ensure connections are in the configured state
+  ansible.builtin.include_tasks:
+    file: "configure-interface.yml"
+  loop: "{{ wg_quick_interfaces }}"
+  loop_control:
+    loop_var: "wg_quick_iface"
+    label: "{{ wg_quick_iface.name }}"

@@ -1,0 +1,29 @@
+[Interface]
+Address = {{ wg_quick_iface.address | join(', ') }}
+ListenPort = {{ wg_quick_iface.listen_port }}
+
+{% if wg_quick_iface.private_key %}
+PrivateKey = {{ wg_quick_iface.private_key }}
+{% elif wg_quick_iface.private_key_file %}
+PrivateKeyFile = {{ wg_quick_iface.private_key_file }}
+{% endif %}
+{% if wg_quick_iface.table is defined %}
+Table = {{ wg_quick_iface.table | ternary('On', 'Off') }}
+{% endif %}
+{% if wg_quick_iface.post_up %}
+PostUp = /bin/bash -c "{{ wg_quick_iface.post_up | join('; ') }}"
+{% endif %}
+{% if wg_quick_iface.pre_down %}
+PreDown = /bin/bash -c "{{ wg_quick_iface.pre_down | join('; ') }}"
+{% endif %}
+
+
+{% for _peer in wg_quick_iface.peers %}
+[Peer]
+Endpoint = {{ _peer.endpoint }}
+PublicKey = {{ _peer.public_key }}
+AllowedIPs = {{ _peer.allowed_ips | join(', ') }}
+{% if _peer.persistent_keepalive %}
+PersistentKeepalive = {{ _peer.persistent_keepalive }}
+{% endif %}
+{% endfor %}

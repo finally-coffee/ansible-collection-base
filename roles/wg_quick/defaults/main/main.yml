@@ -1,0 +1,7 @@
+---
+wg_quick_state: "present"
+wg_quick_package_name: "wireguard-tools"
+wg_quick_system_packages:
+  - "{{ wg_quick_package_name }}"
+
+wg_quick_configuration_dir: "/etc/wireguard"
