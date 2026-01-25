@@ -26,4 +26,7 @@ AllowedIPs = {{ _peer.allowed_ips | join(', ') }}
 {% if _peer.persistent_keepalive %}
 PersistentKeepalive = {{ _peer.persistent_keepalive }}
 {% endif %}
+{% if 'psk' in _peer %}
+PresharedKey = {{ _peer.psk }}
+{% endif %}
 {% endfor %}
