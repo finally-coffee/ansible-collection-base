@@ -8,7 +8,7 @@ PrivateKey = {{ wg_quick_iface.private_key }}
 PrivateKeyFile = {{ wg_quick_iface.private_key_file }}
 {% endif %}
 {% if wg_quick_iface.table is defined %}
-Table = {{ wg_quick_iface.table | ternary('On', 'Off') }}
+Table = {{ wg_quick_iface.table | ternary('on', 'off') }}
 {% endif %}
 {% if wg_quick_iface.post_up %}
 PostUp = /bin/bash -c "{{ wg_quick_iface.post_up | join('; ') }}"
