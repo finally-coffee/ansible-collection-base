@@ -8,9 +8,9 @@ description: >-2
   Roles for base services which are core functionality like managing packages
   and ssh or common dependencies other services like databases
 dependencies:
-  "community.docker": "^4.7.0"
-  "community.general": "^11.1.2"
-  "containers.podman": "^1.17.0"
+  "community.docker": ">=4.7.0"
+  "community.general": ">=11.1.2"
+  "containers.podman": ">=1.17.0"
 license_file: LICENSE.md
 build_ignore:
 - '*.tar.gz'
