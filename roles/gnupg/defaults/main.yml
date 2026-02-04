@@ -14,7 +14,7 @@ gpg_config_emit_version: false
 gpg_config_comments: false
 gpg_config_ignore_time_conflict: false
 gpg_config_allow_freeform_uid: true
-gpg_config_keyid_format: 0xlong
+gpg_config_keyid_format: "0xlong"
 gpg_config_with_fingerprint: true
 
 gpg_config_keyserver: hkps://keys.openpgp.org

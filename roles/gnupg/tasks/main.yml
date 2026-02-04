@@ -1,55 +1,54 @@
 ---
-
 - name: Ensure gnupg is installed (RedHat*)
-  package:
+  ansible.builtin.package:
     name: gnupg2
     state: latest
   become: true
   when: ansible_os_family == "RedHat"
 
 - name: Ensure gnupg is installed (Arch)
-  package:
+  ansible.builtin.package:
     name: gnupg
     state: latest
   become: true
   when: ansible_os_family == "Archlinux"
 
 - name: Ensure ~/.gnupg folder exists with correct permissions
-  file:
+  ansible.builtin.file:
     path: "{{ gpg_config_folder }}"
     state: directory
-    mode: 0700
+    mode: "0700"
 
 - name: Ensure gpg.conf is templated
-  template:
+  ansible.builtin.template:
     src: gpg.conf.j2
     dest: "{{ gpg_config_file }}"
 
 - name: Configure gpg-agent.conf (agent configuration)
-  template:
+  ansible.builtin.template:
     src: gpg-agent.conf.j2
     dest: "{{ gpg_agent_config_file }}"
 
 - name: Configure scdaemon.conf (smartcard daemon)
-  template:
+  ansible.builtin.template:
     src: scdaemon.conf.j2
     dest: "{{ gpg_scdaemon_config_file }}"
 
 - name: Configure sshcontrol (in order for gpg-agent to act as ssh-agent)
-  template:
+  ansible.builtin.template:
     src: sshcontrol.j2
     dest: "{{ gpg_agent_sshcontrol_file }}"
   when: gpg_agent_config_enable_ssh_support
 
 - name: Copy gnupg_agent script, which makes gpg-agent responsible for ssh-auth
-  copy:
+  ansible.builtin.copy:
     src: gpg-configure-ssh-auth-socket.sh
     dest: "{{ gpg_configure_agent_script }}"
-    mode: 0700
+    mode: "0700"
   when: gpg_agent_config_enable_ssh_support
 
 - name: Ensure gnupg_agent script is included in bashrc
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "~/.bashrc"
     line: "source {{ gpg_configure_agent_script }}"
     state: present
