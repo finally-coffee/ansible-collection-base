@@ -1,0 +1,21 @@
+---
+# see https://docs.ansible.com/projects/lint/configuring/#ansible-lint-configuration
+profile: moderate
+exclude_paths:
+  - ".ansible/"
+
+# Enable checking of loop variable prefixes in roles
+loop_var_prefix: "^(__|{role}_)"
+
+# Enforce variable names to follow pattern below, in addition to Ansible own
+# requirements, like avoiding python identifiers. To disable add `var-naming`
+# to skip_list.
+var_naming_pattern: "^[a-z_][a-z0-9_]*$"
+
+skip_list:
+  - "name[template]"
+enable_list:
+  - galaxy
+  - fqcn
+
+offline: true
