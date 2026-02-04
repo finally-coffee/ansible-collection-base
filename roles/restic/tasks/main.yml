@@ -18,10 +18,10 @@
     msg: "`restic_backup_stdin_command` was set but no filename for the resulting output was supplied in `restic_backup_stdin_command_filename`"
 
 - name: Ensure backup frequency adheres to systemd's OnCalender syntax
-  command:
+  ansible.builtin.command:
     cmd: "systemd-analyze calendar {{ restic_policy.frequency }}"
-  register: systemd_calender_parse_res
-  failed_when: systemd_calender_parse_res.rc != 0
+  register: restic_systemd_calender_parse_result
+  failed_when: restic_systemd_calender_parse_result.rc != 0
   changed_when: false
 
 - name: Ensure restic is installed
@@ -42,13 +42,21 @@
         state: present
       when: ansible_os_family not in ['RedHat', 'Debian']
 
+- name: Ensure backup script is templated
+  ansible.builtin.copy:
+    src: restic-backup-directories.sh
+    dest: /opt/restic-backup-directories.sh
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: Ensure systemd service file for '{{ restic_job_name }}' is templated
   template:
     dest: "/etc/systemd/system/{{ restic_systemd_unit_naming_scheme }}.service"
     src: restic.service.j2
     owner: root
     group: root
-    mode: 0640
+    mode: "0640"
   notify:
     - reload-systemd
     - trigger-restic
@@ -59,7 +67,7 @@
     src: restic.timer.j2
     owner: root
     group: root
-    mode: 0640
+    mode: "0640"
   notify:
     - reload-systemd
 

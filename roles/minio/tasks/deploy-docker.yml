@@ -4,7 +4,7 @@
     path: "{{ minio_data_path }}"
     state: directory
     user: "{{ minio_user | default(omit, True) }}"
-    group: "{{ minio_user| default(omit, True) }}"
+    group: "{{ minio_user | default(omit, True) }}"
   when: minio_manage_host_filesystem
 
 - name: Ensure container image '{{ minio_container_image }}' is {{ minio_state }}
@@ -23,7 +23,7 @@
     labels: "{{ minio_container_labels }}"
     networks: "{{ minio_container_networks }}"
     ports: "{{ minio_container_ports }}"
-    user: "{{ minio_user|default(omit, True) }}"
+    user: "{{ minio_user | default(omit, True) }}"
     command: "{{ minio_container_command }}"
     restart_policy: "{{ minio_container_restart_policy }}"
     state: "{{ minio_container_state }}"

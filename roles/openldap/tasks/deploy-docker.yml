@@ -22,4 +22,3 @@
       {{ openldap_container_restart_policy | default(omit, true) }}
     healthcheck: "{{ openldap_container_healthcheck | default(omit, true) }}"
     state: "{{ openldap_container_state }}"
-

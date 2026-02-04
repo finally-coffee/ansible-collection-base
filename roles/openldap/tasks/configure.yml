@@ -2,7 +2,7 @@
 - name: Ensure config attributes are configured
   community.general.ldap_attrs:
     dn: "{{ openldap_config_dn }}"
-    attributes: "{{ { entry.key : entry.value } }}"
+    attributes: "{{ {entry.key: entry.value} }}"
     state: exact
     server_uri: "{{ openldap_socket_url }}"
   loop: "{{ openldap_config_attributes | dict2items }}"
@@ -13,7 +13,7 @@
 - name: Ensure config db attributes are configured
   community.general.ldap_attrs:
     dn: "{{ openldap_config_db_dn }}"
-    attributes: "{{ { entry.key: entry.value } }}"
+    attributes: "{{ {entry.key: entry.value} }}"
     state: exact
     server_uri: "{{ openldap_socket_url }}"
   loop: "{{ openldap_config_db_attributes | dict2items }}"

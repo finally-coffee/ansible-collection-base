@@ -2,7 +2,7 @@
 - name: Ensure additional schemas are mapped to container
   ansible.builtin.set_fact:
     openldap_init_container_volumes: >-2
-      {{ openldap_init_container_volumes + [ schema_mount ] }}
+      {{ openldap_init_container_volumes + [schema_mount] }}
   vars:
     schema_file: "{{ openldap_schema_path }}/{{ schema.name }}.ldif"
     schema_mount: >-2
