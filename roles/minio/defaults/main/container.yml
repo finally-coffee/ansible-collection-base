@@ -23,7 +23,7 @@ minio_container_command:
   - "--console-address"
   - ":{{ minio_container_listen_port_console }}"
 minio_container_restart_policy: "unless-stopped"
-minio_container_image_force_source: "{{ (minio_container_image_tag == 'latest')|bool }}"
+minio_container_image_force_source: "{{ (minio_container_image_tag == 'latest') | bool }}"
 minio_container_state: >-2
   {{ (minio_state == 'present') | ternary('started', 'absent') }}
 

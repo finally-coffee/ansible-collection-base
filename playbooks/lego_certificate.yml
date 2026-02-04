@@ -6,7 +6,7 @@
   pre_tasks:
     - name: Build target dns records
       ansible.builtin.set_fact:
-        target_dns_records: "{{ target_dns_records + [ _dns_record ] }}"
+        target_dns_records: "{{ target_dns_records + [_dns_record] }}"
       vars:
         _dns_record:
           type: "CNAME"

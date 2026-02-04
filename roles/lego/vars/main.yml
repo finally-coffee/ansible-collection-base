@@ -1,11 +1,11 @@
 ---
 
-lego_domain_command_args: >-
+lego_domain_command_args: >-2
   {% for domain in lego_cert_domains %}
    --domains={{ domain }}
   {%- endfor %}
 
-lego_config_command_args: >-
+lego_config_command_args: >-2
   {% for key in lego_full_command_config %}
    --{{ key | replace("_", "-") }}
   {%- if lego_full_command_config[key] != None and lego_full_command_config[key] != '' -%}

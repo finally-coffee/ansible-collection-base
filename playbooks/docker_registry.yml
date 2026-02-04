@@ -13,4 +13,4 @@
       loop: "{{ docker_registries | default([], true) }}"
       loop_control:
         loop_var: "docker_registry"
-        label: "{{ docker_registry.username}}@{{ docker_registry.registry }}"
+        label: "{{ docker_registry.username }}@{{ docker_registry.registry }}"

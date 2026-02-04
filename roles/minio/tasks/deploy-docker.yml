@@ -3,15 +3,15 @@
   ansible.builtin.file:
     path: "{{ minio_data_path }}"
     state: directory
-    user: "{{ minio_user|default(omit, True) }}"
-    group: "{{ minio_user|default(omit, True) }}"
+    user: "{{ minio_user | default(omit, True) }}"
+    group: "{{ minio_user| default(omit, True) }}"
   when: minio_manage_host_filesystem
 
 - name: Ensure container image '{{ minio_container_image }}' is {{ minio_state }}
   community.docker.docker_image:
     name: "{{ minio_container_image }}"
     state: "{{ minio_state }}"
-    source: pull
+    source: "pull"
     force_source: "{{ minio_container_image_force_source }}"
 
 - name: Ensure container '{{ minio_container_name }}' is {{ minio_container_state }}
