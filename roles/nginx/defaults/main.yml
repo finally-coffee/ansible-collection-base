@@ -34,4 +34,3 @@ nginx_container_state: >-2
 nginx_container_restart_policy: "unless-stopped"
 nginx_container_volumes:
   - "{{ nginx_config_file }}:/etc/nginx/conf.d/nginx.conf:ro"
- 

@@ -35,7 +35,7 @@
       {% for alias in git_config_alias %}
         {{ alias.name }} = {{ alias.command }}
       {% endfor %}
-      
+
       {% for credentialset in git_config_credentials %}
       [credential "{{ credentialset.remote_url }}"]
       {% for entry in credentialset.config | dict2items %}

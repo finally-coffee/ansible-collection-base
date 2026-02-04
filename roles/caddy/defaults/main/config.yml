@@ -14,10 +14,9 @@ caddy_config: |+2
       header_up X-Url-Scheme {scheme}
       header_up X-Forwarded-Host {host}
   }
-  
+
   # Import all configurations
   import {{ caddy_dynamic_configs_dir }}/*/Caddyfile
-  
   :80 {
       redir /  https://{host}{uri} 301
   }

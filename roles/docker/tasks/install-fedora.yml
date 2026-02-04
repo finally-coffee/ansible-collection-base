@@ -10,7 +10,7 @@
     name: "{{ docker_fedora_repo_name }}"
     description: "{{ docker_fedora_repo_description }}"
     baseurl: "{{ docker_fedora_repo_url }}"
-    validate_certs: "{{ docker_fedora_repo_validate_certs }}" 
+    validate_certs: "{{ docker_fedora_repo_validate_certs }}"
     gpgkey: "{{ docker_fedora_repo_gpg_key }}"
     gpgcheck: "{{ docker_fedora_repo_gpg_check }}"
     state: "{{ docker_state }}"

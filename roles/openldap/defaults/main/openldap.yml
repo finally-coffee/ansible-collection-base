@@ -62,4 +62,4 @@ openldap_default_database:
   indices: "{{ openldap_default_database_indices }}"
 openldap_default_database_olc_access: "{{ openldap_config_db_olc_access }}"
 openldap_databases:
-  - "{{ openldap_default_database }}" 
+  - "{{ openldap_default_database }}"
