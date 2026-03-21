@@ -45,6 +45,12 @@
 - name: Ensure lego is installed
   when: (lego_binary_info.rc != 0) or (lego_version not in lego_binary_version_info.stdout)
   block:
+    - name: Collect facts about the target platform
+      ansible.builtin.setup:
+        gather_subset:
+          - "architecture"
+        gather_timeout: 30
+
     - name: Download lego from source
       ansible.builtin.get_url:
         url: "{{ lego_release_archive_url }}"
