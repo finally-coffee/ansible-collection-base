@@ -1,16 +1,16 @@
 ---
 - name: Ensure openssh server package is {{ openssh_state }} (dnf)
   ansible.builtin.dnf:
-    name: "{{ openssh_packages[ansible_distribution | lower] }}"
+    name: "{{ openssh_packages[_ansible_distribution] }}"
     state: "{{ openssh_state }}"
   when:
-    - ansible_facts['pkg_mgr'] in ['dnf', 'dnf5']
-    - ansible_distribution | lower in openssh_packages.keys()
+    - _ansible_pkg_mgr in ['dnf', 'dnf5']
+    - _ansible_distribution in openssh_packages.keys()
 
 - name: Ensure openssh server package is {{ openssh_state }} (apt)
   ansible.builtin.apt:
-    package: "{{ openssh_packages[ansible_distribution | lower] }}"
+    package: "{{ openssh_packages[_ansible_distribution] }}"
     state: "{{ openssh_state }}"
   when:
-    - ansible_facts['pkg_mgr'] in ['apt']
-    - ansible_distribution | lower in openssh_packages.keys()
+    - _ansible_pkg_mgr in ['apt']
+    - _ansible_distribution in openssh_packages.keys()

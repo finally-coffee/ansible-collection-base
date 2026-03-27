@@ -9,6 +9,9 @@
 - name: Ensure openssh is {{ openssh_state }}
   ansible.builtin.include_tasks:
     file: "install.yml"
+  vars:
+    _ansible_distribution: "{{ ansible_facts['distribution'] | lower }}"
+    _ansible_pkg_mgr: "{{ ansible_facts['pkg_mgr'] }}"
 
 - name: Ensure sshd is configured
   ansible.builtin.include_tasks:
