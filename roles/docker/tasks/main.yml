@@ -5,11 +5,11 @@
       OS '{{ docker_os }}' is not supported!
   when: docker_os not in docker_supported_oses
   vars:
-    docker_os: "{{ ansible_distribution | lower }}"
+    docker_os: "{{ ansible_facts['distribution'] | lower }}"
 
-- name: Ensure docker is {{ docker_state }} on {{ ansible_distribution }}
+- name: Ensure docker is {{ docker_state }} on {{ ansible_facts['distribution'] }}
   ansible.builtin.include_tasks:
-    file: "install-{{ ansible_distribution | lower }}.yml"
+    file: "install-{{ ansible_facts['distribution'] | lower }}.yml"
 
 - name: Configure docker daemon
   ansible.builtin.include_tasks:
