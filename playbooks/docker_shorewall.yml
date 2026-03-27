@@ -46,7 +46,7 @@
         line: "DOCKER=Yes"
         regex: "^DOCKER="
     - name: Ensure shorewall reloaded
-      community.general.systemd_service:
+      ansible.builtin.systemd_service:
         service: "{{ item }}"
         state: reloaded
       loop:
