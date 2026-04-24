@@ -1,6 +1,6 @@
----
+u---
 lego_user: "lego"
-lego_version: "4.35.1"
+lego_version: "4.35.2"
 lego_instance: default
 lego_base_path: "/opt/lego"
 lego_cert_user: "acme-{{ lego_instance }}"
