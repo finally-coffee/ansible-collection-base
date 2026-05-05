@@ -1,5 +1,5 @@
 ---
-openldap_version: "2.6.8"
+openldap_version: "2.6.10"
 openldap_alpine_revision: "0"
 openldap_alpine_package_version: >-2
   v{{ openldap_version }}-r{{ openldap_alpine_revision | string }}
