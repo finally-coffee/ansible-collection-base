@@ -19,10 +19,10 @@
           encode zstd gzip
           {% if caddy_reverse_proxy_template_block  | default(true) -%}
           reverse_proxy {{ caddy_reverse_proxy_backend_addr }} {
-            {{ caddy_reverse_proxy_extra_config | default('') | indent(6) }}
-            {%- if caddy_reverse_proxy_import_proxyheaders | default(true, true) %}
+            {% if caddy_reverse_proxy_import_proxyheaders | default(true, true) %}
             import proxyheaders
             {%- endif +%}
+                  {{ caddy_reverse_proxy_extra_config | default('') }}
           }
           {%- else -%}
           {{- caddy_reverse_proxy_block | default('') | indent(4) }}
